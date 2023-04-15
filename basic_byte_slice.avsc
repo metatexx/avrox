@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "namespace": "testing",
+  "name": "BasicByteSlice",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "Magic_4",
+        "size": 4,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "Value",
+      "type": {
+        "type": "bytes"
+      }
+    }
+  ]
+}

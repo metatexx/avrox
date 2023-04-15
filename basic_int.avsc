@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "namespace": "testing",
+  "name": "BasicInt",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "Magic_4",
+        "size": 4,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "Value",
+      "type": "int"
+    }
+  ]
+}
