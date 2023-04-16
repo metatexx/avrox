@@ -61,6 +61,7 @@ var (
 	ErrNoBasicString           = errors.New("no basic string")
 	ErrNoBasicInt              = errors.New("no basic int")
 	ErrNoBasicByteSlice        = errors.New("no basic byte slice")
+	ErrNoBasicMapStringAny     = errors.New("no basic map string any")
 	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
 	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
@@ -162,10 +163,13 @@ func IsMagic(data []byte) bool {
 	return parityBits == calculatedParity
 }
 
-func Marshal(src Schemer, cID CompressionID) ([]byte, error) {
-	schema, err := avro.Parse(src.AVSC())
-	if err != nil {
-		return nil, ErrSchemaInvalid
+func Marshal(src Schemer, cID CompressionID, schema avro.Schema) ([]byte, error) {
+	if schema == nil {
+		var parseErr error
+		schema, parseErr = avro.Parse(src.AVSC())
+		if parseErr != nil {
+			return nil, ErrSchemaInvalid
+		}
 	}
 	return MarshalAny(src, schema, src.NamespaceID(), src.SchemaID(), cID)
 }
@@ -223,6 +227,12 @@ func MarshalBasic(src any) ([]byte, error) {
 			Value: v,
 		}
 		return avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
+	case map[string]any:
+		kind := &BasicMapStringAny{
+			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, CompNone),
+			Value: v,
+		}
+		return avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
 	default:
 		return nil, errors.New("unsupported type")
 	}
@@ -363,6 +373,16 @@ func UnmarshalBasic(src []byte) (any, error) {
 		}
 		if nID != NamespaceBasic && sID != BasicByteSliceID {
 			return nil, ErrNoBasicByteSlice
+		}
+		return kind.Value, nil
+	case BasicMapStringAnyID:
+		kind := &BasicMapStringAny{}
+		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicMapStringAnyAVSC), kind)
+		if errUnmarshalAny != nil {
+			return nil, errUnmarshalAny
+		}
+		if nID != NamespaceBasic && sID != BasicByteSliceID {
+			return nil, ErrNoBasicMapStringAny
 		}
 		return kind.Value, nil
 	default:

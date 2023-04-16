@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "namespace": "testing",
+  "name": "BasicMapStringAny",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "Magic_4",
+        "size": 4,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "Value",
+      "type": {
+        "type": "map",
+        "values": [
+          "null",
+          "boolean",
+          "int",
+          "long",
+          "float",
+          "double",
+          "string",
+          "bytes"
+        ]
+      }
+    }
+  ]
+}

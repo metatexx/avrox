@@ -81,11 +81,11 @@ func TestMarshal(t *testing.T) {
 	mt := avrox.BasicString{
 		Value: "foo",
 	}
-	_, err := avrox.Marshal(&mt, avrox.CompMax+1)
+	_, err := avrox.Marshal(&mt, avrox.CompMax+1, nil)
 	//t.Logf("%s", err)
 	assert.True(t, errors.Is(err, avrox.ErrCompressionIDOutOfRange))
 
-	data, err2 := avrox.Marshal(&mt, avrox.CompNone)
+	data, err2 := avrox.Marshal(&mt, avrox.CompNone, nil)
 	assert.NoError(t, err2)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])
@@ -105,7 +105,7 @@ func TestMarshalSnappy(t *testing.T) {
 	mt := avrox.BasicString{
 		Value: "foobarfoo",
 	}
-	data, errMarshal := avrox.Marshal(&mt, avrox.CompSnappy)
+	data, errMarshal := avrox.Marshal(&mt, avrox.CompSnappy, nil)
 	assert.NoError(t, errMarshal)
 
 	n, s, c, errDecodeMagic := avrox.DecodeMagic(data[:4])
@@ -121,7 +121,6 @@ func TestMarshalSnappy(t *testing.T) {
 }
 
 func TestMarshalBasicString(t *testing.T) {
-	// we can use BasicString struct here (just use another magic)
 	data, err := avrox.MarshalBasic("bar")
 	assert.NoError(t, err)
 
@@ -137,7 +136,6 @@ func TestMarshalBasicString(t *testing.T) {
 }
 
 func TestMarshalBasicInt(t *testing.T) {
-	// we can use BasicString struct here (just use another magic)
 	data, err := avrox.MarshalBasic(42)
 	assert.NoError(t, err)
 
@@ -171,7 +169,6 @@ func TestUnmarshalBasicTypes(t *testing.T) {
 }
 
 func TestMarshalBasicByteSlice(t *testing.T) {
-	// we can use BasicString struct here (just use another magic)
 	value := []byte{0, 1, 2, 3}
 	data, err := avrox.MarshalBasic(value)
 	assert.NoError(t, err)
@@ -180,6 +177,22 @@ func TestMarshalBasicByteSlice(t *testing.T) {
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicByteSliceID, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	result, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.Equal(t, value, result)
+}
+
+func TestMarshalMapStringAny(t *testing.T) {
+	value := map[string]any{"foo": 1, "bar": "baz", "error": false}
+	data, err := avrox.MarshalBasic(value)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicMapStringAnyID, s)
 	assert.Equal(t, avrox.CompNone, c)
 
 	text, err4 := avrox.UnmarshalBasic(data)
