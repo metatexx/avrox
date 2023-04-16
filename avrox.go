@@ -44,25 +44,25 @@ const (
 )
 
 var (
-	ErrLengthInvalid            = errors.New("data length should be exactly 4 bytes")
-	ErrNamespaceIDOutOfRange    = errors.New("namespace must be between 0 and 31")
-	ErrCompressionIDOutOfRange  = errors.New("compression must be between 0 and 7")
-	ErrCompressionUnsupported   = errors.New("compression type is unsupported")
-	ErrSchemaIDOutOfRange       = errors.New("schema must be between 0 and 8191")
-	ErrMarkerInvalid            = fmt.Errorf("data should start with magic marker (0x%02x)", Marker)
-	ErrParityCheckFailed        = errors.New("parity check failed")
-	ErrMarshallingFailed        = errors.New("marshalling failed")
-	ErrSchemaNil                = errors.New("schema is nil")
-	ErrSchemaInvalid            = errors.New("schema is invalid")
-	ErrDecompress               = errors.New("can not decompress")
-	ErrMessageFormatNotDetected = errors.New("message format was not detedted")
-	ErrNoBasicNamespace         = errors.New("no basic namespace")
-	ErrNoBasicSchema            = errors.New("no basic schema")
-	ErrNoBasicString            = errors.New("no basic string")
-	ErrNoBasicInt               = errors.New("no basic int")
-	ErrNoBasicByteSlice         = errors.New("no basic byte slice")
-	ErrWrongNamespace           = errors.New("namespace from schemer does not fit the magic entry")
-	ErrWrongSchema              = errors.New("schema from schemer does not fit the magic entry")
+	ErrLengthInvalid           = errors.New("data length should be exactly 4 bytes")
+	ErrNamespaceIDOutOfRange   = errors.New("namespace must be between 0 and 31")
+	ErrCompressionIDOutOfRange = errors.New("compression must be between 0 and 7")
+	ErrCompressionUnsupported  = errors.New("compression type is unsupported")
+	ErrSchemaIDOutOfRange      = errors.New("schema must be between 0 and 8191")
+	ErrMarkerInvalid           = fmt.Errorf("data should start with magic marker (0x%02x)", Marker)
+	ErrParityCheckFailed       = errors.New("parity check failed")
+	ErrMarshallingFailed       = errors.New("marshalling failed")
+	ErrSchemaNil               = errors.New("schema is nil")
+	ErrSchemaInvalid           = errors.New("schema is invalid")
+	ErrDecompress              = errors.New("can not decompress")
+	ErrDataFormatNotDetected   = errors.New("message format was not detected")
+	ErrNoBasicNamespace        = errors.New("no basic namespace")
+	ErrNoBasicSchema           = errors.New("no basic schema")
+	ErrNoBasicString           = errors.New("no basic string")
+	ErrNoBasicInt              = errors.New("no basic int")
+	ErrNoBasicByteSlice        = errors.New("no basic byte slice")
+	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
+	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
 )
 
@@ -280,7 +280,7 @@ func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 		}
 		return avro.Unmarshal(schema, data, dst)
 	}
-	return ErrMessageFormatNotDetected
+	return ErrDataFormatNotDetected
 }
 
 func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemaID, error) {
@@ -290,7 +290,7 @@ func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, 
 	}
 
 	if len(data) <= 4 || !IsMagic(data[0:4]) {
-		return 0, 0, ErrMessageFormatNotDetected
+		return 0, 0, ErrDataFormatNotDetected
 	}
 
 	// AVRO (with MagicV1)
