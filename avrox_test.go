@@ -121,7 +121,7 @@ func TestMarshalSnappy(t *testing.T) {
 }
 
 func TestMarshalBasicString(t *testing.T) {
-	data, err := avrox.MarshalBasic("bar")
+	data, err := avrox.MarshalBasic("bar", avrox.CompNone)
 	assert.NoError(t, err)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])
@@ -136,7 +136,7 @@ func TestMarshalBasicString(t *testing.T) {
 }
 
 func TestMarshalBasicInt(t *testing.T) {
-	data, err := avrox.MarshalBasic(42)
+	data, err := avrox.MarshalBasic(42, avrox.CompNone)
 	assert.NoError(t, err)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])
@@ -152,7 +152,7 @@ func TestMarshalBasicInt(t *testing.T) {
 
 func TestUnmarshalBasicTypes(t *testing.T) {
 	inString := "bar"
-	data, err := avrox.MarshalBasic(inString)
+	data, err := avrox.MarshalBasic(inString, avrox.CompNone)
 	assert.NoError(t, err)
 	var outString string
 	outString, err = avrox.UnmarshalString(data)
@@ -160,7 +160,7 @@ func TestUnmarshalBasicTypes(t *testing.T) {
 	assert.Equal(t, inString, outString)
 
 	inInt := -42
-	data, err = avrox.MarshalBasic(inInt)
+	data, err = avrox.MarshalBasic(inInt, avrox.CompNone)
 	assert.NoError(t, err)
 	var outInt int
 	outInt, err = avrox.UnmarshalInt(data)
@@ -170,7 +170,7 @@ func TestUnmarshalBasicTypes(t *testing.T) {
 
 func TestMarshalBasicByteSlice(t *testing.T) {
 	value := []byte{0, 1, 2, 3}
-	data, err := avrox.MarshalBasic(value)
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])
@@ -186,7 +186,7 @@ func TestMarshalBasicByteSlice(t *testing.T) {
 
 func TestMarshalMapStringAny(t *testing.T) {
 	value := map[string]any{"foo": 1, "bar": "baz", "error": false}
-	data, err := avrox.MarshalBasic(value)
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])

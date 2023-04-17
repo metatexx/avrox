@@ -11,7 +11,7 @@ import (
 	"github.com/metatexx/mxx/wfl"
 )
 
-// 0xAC 0bCCCNNNNN 0bSSSSSSSS 0bSSSSSPPP
+// 0x93 0bCCCNNNNN 0bSSSSSSSS 0bSSSSSPPP
 
 var Marker byte = 0x93 // one of the best when analysing our data
 
@@ -207,35 +207,49 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID 
 	return data, nil
 }
 
-func MarshalBasic(src any) ([]byte, error) {
+func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
+	var data []byte
+	var errMarshall error
 	switch v := src.(type) {
 	case string:
 		kind := &BasicString{
 			Magic: MustEncodeBasicMagic(BasicStringID, CompNone),
 			Value: v,
 		}
-		return avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
 	case int:
 		kind := &BasicInt{
 			Magic: MustEncodeBasicMagic(BasicIntID, CompNone),
 			Value: v,
 		}
-		return avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
 	case []byte:
 		kind := &BasicByteSlice{
 			Magic: MustEncodeBasicMagic(BasicByteSliceID, CompNone),
 			Value: v,
 		}
-		return avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
 	case map[string]any:
 		kind := &BasicMapStringAny{
 			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, CompNone),
 			Value: v,
 		}
-		return avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
 	default:
 		return nil, errors.New("unsupported type")
 	}
+	if errMarshall != nil {
+		return nil, errMarshall
+	}
+	switch cID {
+	case CompNone:
+	case CompSnappy:
+		edata := snappy.Encode(nil, data[4:])
+		data = append(data[0:4], edata...)
+	default:
+		return nil, wfl.ErrorWithSkip(ErrCompressionUnsupported, 2)
+	}
+	return data, nil
 }
 
 // Unmarshal uses the give schema for unmarshalling and checks if
@@ -243,6 +257,10 @@ func MarshalBasic(src any) ([]byte, error) {
 // When the schema is not given it will parse the Schemer info.
 // If the schema is given, it will check that this matches to the Schemer info
 func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
+	if len(data) == 0 {
+		dst = nil
+		return nil
+	}
 	if len(data) > 1 && data[0] == '{' {
 		// TODO: JSON We need to get the namespace and schema from the json data
 		return json.Unmarshal(data, dst)
@@ -294,6 +312,9 @@ func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 }
 
 func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemaID, error) {
+	if len(data) == 0 {
+		return 0, 0, nil
+	}
 	if len(data) > 1 && data[0] == '{' {
 		// TODO: JSON We need to get the namespace and schema from the json data
 		return 0, 0, json.Unmarshal(data, dst)
@@ -325,6 +346,9 @@ func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, 
 }
 
 func UnmarshalBasic(src []byte) (any, error) {
+	if len(src) == 0 {
+		return nil, nil
+	}
 	nID, sID, cID, err := DecodeMagic(src[:4])
 	if err != nil {
 		return nil, err

@@ -11,7 +11,6 @@ func TestEncoder(t *testing.T) {
 	assert.Equal(t, 1, 1)
 	ae := &encoder.AvroXEncoder{}
 	value := &avrox.BasicMapStringAny{
-		Magic: avrox.MustEncodeBasicMagic(avrox.BasicStringID, avrox.CompNone),
 		Value: map[string]any{"Foo": 1, "bar": "baz"},
 	}
 	encoded, err := ae.Encode("", value)
@@ -27,7 +26,6 @@ func TestEncoder(t *testing.T) {
 func encodeDecode(n int) int {
 	ae := &encoder.AvroXEncoder{}
 	value := &avrox.BasicMapStringAny{
-		Magic: avrox.MustEncodeBasicMagic(avrox.BasicStringID, avrox.CompNone),
 		Value: map[string]any{"Foo": n, "bar": "baz"},
 	}
 	encoded, err := ae.Encode("", value)
