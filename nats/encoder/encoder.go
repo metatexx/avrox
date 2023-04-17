@@ -2,10 +2,11 @@ package encoder
 
 import (
 	"errors"
+	"sync"
+
 	"github.com/hamba/avro/v2"
 	"github.com/metatexx/avrox"
 	"github.com/nats-io/nats.go"
-	"sync"
 )
 
 const (

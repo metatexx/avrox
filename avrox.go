@@ -213,25 +213,25 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	switch v := src.(type) {
 	case string:
 		kind := &BasicString{
-			Magic: MustEncodeBasicMagic(BasicStringID, CompNone),
+			Magic: MustEncodeBasicMagic(BasicStringID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
 	case int:
 		kind := &BasicInt{
-			Magic: MustEncodeBasicMagic(BasicIntID, CompNone),
+			Magic: MustEncodeBasicMagic(BasicIntID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
 	case []byte:
 		kind := &BasicByteSlice{
-			Magic: MustEncodeBasicMagic(BasicByteSliceID, CompNone),
+			Magic: MustEncodeBasicMagic(BasicByteSliceID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
 	case map[string]any:
 		kind := &BasicMapStringAny{
-			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, CompNone),
+			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
@@ -241,6 +241,7 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	if errMarshall != nil {
 		return nil, errMarshall
 	}
+	//nolint:exhaustive // can't be exhaustive
 	switch cID {
 	case CompNone:
 	case CompSnappy:
@@ -252,6 +253,33 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	return data, nil
 }
 
+func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemaID, error) {
+	if len(data) <= 4 || !IsMagic(data[0:4]) {
+		return nil, 0, 0, ErrDataFormatNotDetected
+	}
+
+	nID, sID, cID, errMagic := DecodeMagic(data[0:4])
+	if errMagic != nil {
+		return nil, 0, 0, errMagic
+	}
+
+	//nolint:exhaustive // can't be exhaustive
+	switch cID {
+	case CompNone:
+		break
+	case CompSnappy:
+		dData, errDecode := snappy.Decode(nil, data[4:])
+		if errDecode != nil {
+			return nil, 0, 0, ErrDecompress
+		}
+		data = append(data[:4], dData...)
+	default:
+		return nil, 0, 0, ErrCompressionUnsupported
+	}
+
+	return data, nID, sID, nil
+}
+
 // Unmarshal uses the give schema for unmarshalling and checks if
 // it fits to the decode data. This function is faster if the schema is given
 // When the schema is not given it will parse the Schemer info.
@@ -261,87 +289,50 @@ func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 		dst = nil
 		return nil
 	}
+
 	if len(data) > 1 && data[0] == '{' {
 		// TODO: JSON We need to get the namespace and schema from the json data
 		return json.Unmarshal(data, dst)
-	} else if len(data) > 4 && IsMagic(data[0:4]) {
-		var cID CompressionID
-		if schema == nil {
-			var errSchema error
-			schema, errSchema = avro.Parse(dst.AVSC())
-			if errSchema != nil {
-				return errSchema
-			}
-			var errDecodeMagic error
-			_, _, cID, errDecodeMagic = DecodeMagic(data[0:4])
-			if errDecodeMagic != nil {
-				return errDecodeMagic
-			}
-		} else {
-			var nID NamespaceID
-			var sID SchemaID
-			var errDecodeMagic error
-			nID, sID, cID, errDecodeMagic = DecodeMagic(data[0:4])
-			if errDecodeMagic != nil {
-				return errDecodeMagic
-			}
-			if nID != dst.NamespaceID() {
-				return ErrWrongNamespace
-			}
-			if sID != dst.SchemaID() {
-				return ErrWrongSchema
-			}
-		}
-		//nolint:exhaustive // can't be exhaustive
-		switch cID {
-		case CompNone:
-			break
-		case CompSnappy:
-			// we encode the part after the magic (this can most likely be optimized)
-			edata, errDecode := snappy.Decode(nil, data[4:])
-			if errDecode != nil {
-				return wfl.Error(ErrDecompress)
-			}
-			data = append(data[0:4], edata...)
-		default:
-			return ErrCompressionUnsupported
-		}
-		return avro.Unmarshal(schema, data, dst)
 	}
-	return ErrDataFormatNotDetected
+
+	data, nID, sID, errHelper := unmarshalHelper(data)
+	if errHelper != nil {
+		return errHelper
+	}
+
+	if schema == nil {
+		var errSchema error
+		schema, errSchema = avro.Parse(dst.AVSC())
+		if errSchema != nil {
+			return errSchema
+		}
+	} else {
+		if nID != dst.NamespaceID() {
+			return ErrWrongNamespace
+		}
+		if sID != dst.SchemaID() {
+			return ErrWrongSchema
+		}
+	}
+
+	return avro.Unmarshal(schema, data, dst)
 }
 
 func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemaID, error) {
 	if len(data) == 0 {
 		return 0, 0, nil
 	}
+
 	if len(data) > 1 && data[0] == '{' {
 		// TODO: JSON We need to get the namespace and schema from the json data
 		return 0, 0, json.Unmarshal(data, dst)
 	}
 
-	if len(data) <= 4 || !IsMagic(data[0:4]) {
-		return 0, 0, ErrDataFormatNotDetected
+	data, nID, sID, errHelper := unmarshalHelper(data)
+	if errHelper != nil {
+		return 0, 0, errHelper
 	}
 
-	// AVRO (with MagicV1)
-	nID, sID, cID, errMagic := DecodeMagic(data[0:4])
-	if errMagic != nil {
-		return 0, 0, errMagic
-	}
-	//nolint:exhaustive // can't be exhaustive
-	switch cID {
-	case CompNone:
-		break
-	case CompSnappy:
-		var errDecode error
-		data, errDecode = snappy.Decode(nil, data[:])
-		if errDecode != nil {
-			return 0, 0, ErrDecompress
-		}
-	default:
-		return 0, 0, ErrCompressionUnsupported
-	}
 	return nID, sID, avro.Unmarshal(schema, data, dst)
 }
 
@@ -349,22 +340,14 @@ func UnmarshalBasic(src []byte) (any, error) {
 	if len(src) == 0 {
 		return nil, nil
 	}
-	nID, sID, cID, err := DecodeMagic(src[:4])
+	nID, sID, _, err := DecodeMagic(src[:4])
 	if err != nil {
 		return nil, err
 	}
 	if nID != NamespaceBasic {
 		return nil, ErrNoBasicNamespace
 	}
-	//nolint:exhaustive // can't be exhaustive
-	switch cID {
-	case CompNone:
-	case CompSnappy:
-		src, err = snappy.Decode(nil, src[:])
-		if err != nil {
-			return nil, ErrDecompress
-		}
-	}
+
 	var errUnmarshalAny error
 
 	//nolint:exhaustive // only runs for NamespaceBasic

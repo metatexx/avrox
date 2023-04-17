@@ -1,10 +1,11 @@
 package encodernocache_test
 
 import (
+	"testing"
+
 	"github.com/metatexx/avrox"
 	encoder "github.com/metatexx/avrox/nats/encodernocache"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestEncoder(t *testing.T) {
@@ -33,7 +34,7 @@ func encodeDecode(n int) int {
 		panic(err)
 	}
 	decoded := &avrox.BasicMapStringAny{}
-	err = ae.Decode("", encoded, decoded)
+	_ = ae.Decode("", encoded, decoded)
 	return decoded.Value["Foo"].(int)
 }
 

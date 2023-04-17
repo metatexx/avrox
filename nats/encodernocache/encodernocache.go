@@ -2,6 +2,7 @@ package encodernocache
 
 import (
 	"errors"
+
 	"github.com/metatexx/avrox"
 	"github.com/nats-io/nats.go"
 )

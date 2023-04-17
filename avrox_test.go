@@ -184,16 +184,16 @@ func TestMarshalBasicByteSlice(t *testing.T) {
 	assert.Equal(t, value, result)
 }
 
-func TestMarshalMapStringAny(t *testing.T) {
+func TestMarshalMapStringAnySnappy(t *testing.T) {
 	value := map[string]any{"foo": 1, "bar": "baz", "error": false}
-	data, err := avrox.MarshalBasic(value, avrox.CompNone)
+	data, err := avrox.MarshalBasic(value, avrox.CompSnappy)
 	assert.NoError(t, err)
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:4])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicMapStringAnyID, s)
-	assert.Equal(t, avrox.CompNone, c)
+	assert.Equal(t, avrox.CompSnappy, c)
 
 	text, err4 := avrox.UnmarshalBasic(data)
 	assert.NoError(t, err4)
