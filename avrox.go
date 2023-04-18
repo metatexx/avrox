@@ -1,6 +1,9 @@
 package avrox
 
 import (
+	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -24,6 +27,8 @@ type SchemaID int
 const (
 	CompNone   CompressionID = 0
 	CompSnappy CompressionID = 1
+	CompFlate  CompressionID = 2 // Uses -1 as compression parameter
+	CompGZip   CompressionID = 3 // Uses -1 as compression parameter
 	CompMax    CompressionID = 7
 
 	// NamespacePrivate means that it is not registered and we use private schemas
@@ -196,15 +201,8 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID 
 		return nil, errors.Join(ErrMarshallingFailed, wfl.ErrorWithSkip(errMarshal, 2))
 	}
 	//nolint:exhaustive // can't be exhaustive
-	switch cID {
-	case CompNone:
-	case CompSnappy:
-		edata := snappy.Encode(nil, data[4:])
-		data = append(data[0:4], edata...)
-	default:
-		return nil, wfl.ErrorWithSkip(ErrCompressionUnsupported, 2)
-	}
-	return data, nil
+	return compressData(data, cID)
+
 }
 
 func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
@@ -217,10 +215,22 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
+	case *string:
+		kind := &BasicString{
+			Magic: MustEncodeBasicMagic(BasicStringID, cID),
+			Value: *v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
 	case int:
 		kind := &BasicInt{
 			Magic: MustEncodeBasicMagic(BasicIntID, cID),
 			Value: v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
+	case *int:
+		kind := &BasicInt{
+			Magic: MustEncodeBasicMagic(BasicIntID, cID),
+			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
 	case []byte:
@@ -229,10 +239,22 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
+	case *[]byte:
+		kind := &BasicByteSlice{
+			Magic: MustEncodeBasicMagic(BasicByteSliceID, cID),
+			Value: *v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
 	case map[string]any:
 		kind := &BasicMapStringAny{
 			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, cID),
 			Value: v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
+	case *map[string]any:
+		kind := &BasicMapStringAny{
+			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, cID),
+			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
 	default:
@@ -241,16 +263,7 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	if errMarshall != nil {
 		return nil, errMarshall
 	}
-	//nolint:exhaustive // can't be exhaustive
-	switch cID {
-	case CompNone:
-	case CompSnappy:
-		edata := snappy.Encode(nil, data[4:])
-		data = append(data[0:4], edata...)
-	default:
-		return nil, wfl.ErrorWithSkip(ErrCompressionUnsupported, 2)
-	}
-	return data, nil
+	return compressData(data, cID)
 }
 
 func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemaID, error) {
@@ -263,21 +276,9 @@ func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemaID, error) {
 		return nil, 0, 0, errMagic
 	}
 
-	//nolint:exhaustive // can't be exhaustive
-	switch cID {
-	case CompNone:
-		break
-	case CompSnappy:
-		dData, errDecode := snappy.Decode(nil, data[4:])
-		if errDecode != nil {
-			return nil, 0, 0, ErrDecompress
-		}
-		data = append(data[:4], dData...)
-	default:
-		return nil, 0, 0, ErrCompressionUnsupported
-	}
-
-	return data, nID, sID, nil
+	var err error
+	data, err = decompressData(data, cID)
+	return data, nID, sID, err
 }
 
 // Unmarshal uses the give schema for unmarshalling and checks if
@@ -417,4 +418,86 @@ func UnmarshalInt(data []byte) (int, error) {
 		return n, nil
 	}
 	return 0, ErrNoBasicString
+}
+
+func compressData(data []byte, cID CompressionID) ([]byte, error) {
+	switch cID {
+	case CompNone:
+		return data, nil
+	case CompSnappy:
+		edata := snappy.Encode(nil, data[4:])
+		return append(data[0:4], edata...), nil
+	case CompFlate:
+		var eData bytes.Buffer
+		w, err := flate.NewWriter(&eData, flate.DefaultCompression)
+		if err != nil {
+			return nil, err
+		}
+		_, err = w.Write(data[4:])
+		if err != nil {
+			return nil, err
+		}
+		err = w.Close()
+		if err != nil {
+			return nil, err
+		}
+		return append(data[0:4], eData.Bytes()...), nil
+	case CompGZip:
+		var eData bytes.Buffer
+		w := gzip.NewWriter(&eData)
+		_, err := w.Write(data[4:])
+		if err != nil {
+			return nil, err
+		}
+		err = w.Close()
+		if err != nil {
+			return nil, err
+		}
+		return append(data[0:4], eData.Bytes()...), nil
+	default:
+		return nil, wfl.ErrorWithSkip(ErrCompressionUnsupported, 3)
+	}
+}
+
+func decompressData(data []byte, cID CompressionID) ([]byte, error) {
+	//nolint:exhaustive // can't be exhaustive
+	switch cID {
+	case CompNone:
+		return data, nil
+	case CompSnappy:
+		dData, errDecode := snappy.Decode(nil, data[4:])
+		if errDecode != nil {
+			return nil, ErrDecompress
+		}
+		return append(data[:4], dData...), nil
+	case CompFlate:
+		b := flate.NewReader(bytes.NewReader(data[4:]))
+		var dData bytes.Buffer
+		_, err := dData.ReadFrom(b)
+		if err != nil {
+			return nil, fmt.Errorf("read flate error: %w", err)
+		}
+		err = b.Close()
+		if err != nil {
+			return nil, fmt.Errorf("close flate error: %w", err)
+		}
+		return append(data[0:4], dData.Bytes()...), nil
+	case CompGZip:
+		b, err := gzip.NewReader(bytes.NewReader(data[4:]))
+		if err != nil {
+			return nil, fmt.Errorf("new reader gzip error: %w", err)
+		}
+		var dData bytes.Buffer
+		_, err = dData.ReadFrom(b)
+		if err != nil {
+			return nil, fmt.Errorf("read gzip error: %w", err)
+		}
+		err = b.Close()
+		if err != nil {
+			return nil, fmt.Errorf("close gzip error: %w", err)
+		}
+		return append(data[0:4], dData.Bytes()...), nil
+	default:
+		return nil, ErrCompressionUnsupported
+	}
 }
