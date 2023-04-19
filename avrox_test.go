@@ -2,7 +2,11 @@ package avrox_test
 
 import (
 	"errors"
+	"github.com/hamba/avro/v2"
+	"github.com/metatexx/avrox/testdata"
+	"math"
 	"testing"
+	"time"
 
 	"github.com/metatexx/avrox"
 	"github.com/stretchr/testify/assert"
@@ -198,4 +202,75 @@ func TestMarshalMapStringAnySnappy(t *testing.T) {
 	text, err4 := avrox.UnmarshalBasic(data)
 	assert.NoError(t, err4)
 	assert.Equal(t, value, text)
+}
+
+func TestMarshalMapStringAnySnappyPtr(t *testing.T) {
+	value := map[string]any{"foo": 1, "bar": "baz", "error": false}
+	data, err := avrox.MarshalBasic(&value, avrox.CompSnappy)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicMapStringAnyID, s)
+	assert.Equal(t, avrox.CompSnappy, c)
+
+	text, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.Equal(t, value, text)
+}
+
+func TestMarshalAny(t *testing.T) {
+	// we can use BasicString struct here (just use another magic)
+	var int69 int8 = 69
+	maxFloat64 := math.MaxFloat64
+	maxFloat32 := float32(math.MaxFloat32)
+	mt := &testdata.TestStruct{
+		FieldInt: 42,
+		FieldSubStruct: testdata.TestSubStruct{
+			FieldSubString: "Bar",
+		},
+		FieldPtrSubStruct: &testdata.TestPtrSubStruct{
+			FieldSubString:  "Baz",
+			FieldPtrInt8:    &int69,
+			FieldPtrFloat64: &maxFloat64,
+			FieldPtrFloat32: &maxFloat32,
+		},
+		FieldSlicePtrSubStruct: []*testdata.TestPtrSubStruct{{
+			FieldSubString: "Bla",
+			FieldPtrInt8:   &int69,
+		}, nil, {
+			FieldSubString: "Blub",
+			FieldPtrInt8:   nil,
+		}},
+		FieldString: "Foo",
+		FieldTime:   avrox.AvroTime(time.Now()),
+		FieldDate:   avrox.AvroDate(time.Now()),
+	}
+	data, err := avrox.MarshalAny(mt, nil, avrox.NamespacePrivate, avrox.SchemaUndefined, avrox.CompNone)
+	assert.True(t, errors.Is(err, avrox.ErrSchemaNil))
+
+	schema, errParse := avro.Parse(testdata.TestStructAVSC)
+	assert.NoError(t, errParse)
+	assert.NotNil(t, schema)
+
+	data, err = avrox.MarshalAny(mt, schema, avrox.NamespacePrivate, avrox.SchemaUndefined, avrox.CompNone)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespacePrivate, n)
+	assert.Equal(t, avrox.SchemaUndefined, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	basicString := &avrox.BasicString{}
+	err4 := avrox.Unmarshal(data, basicString, nil)
+	assert.True(t, errors.Is(err4, avrox.ErrWrongNamespace))
+
+	testStruct := &testdata.TestStruct{}
+	nID, sID, err5 := avrox.UnmarshalAny(data, schema, testStruct)
+	assert.Equal(t, avrox.NamespacePrivate, nID)
+	assert.Equal(t, avrox.SchemaUndefined, sID)
+	assert.NoError(t, err5)
+	assert.Equal(t, mt, testStruct)
 }

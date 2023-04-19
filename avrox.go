@@ -46,6 +46,8 @@ const (
 	// Schema 0 means that it is not defined (but may belong to a namespace)
 	SchemaUndefined SchemaID = 0
 	SchemaMax       SchemaID = 8191
+
+	MagicFieldName = "Magic"
 )
 
 var (
@@ -57,6 +59,7 @@ var (
 	ErrMarkerInvalid           = fmt.Errorf("data should start with magic marker (0x%02x)", Marker)
 	ErrParityCheckFailed       = errors.New("parity check failed")
 	ErrMarshallingFailed       = errors.New("marshalling failed")
+	ErrMarshallAnyWithoutPtr   = errors.New("no ptr src for MarshalAny")
 	ErrSchemaNil               = errors.New("schema is nil")
 	ErrSchemaInvalid           = errors.New("schema is invalid")
 	ErrDecompress              = errors.New("can not decompress")
@@ -189,8 +192,10 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID 
 	}
 	if someValue.Kind() == reflect.Ptr {
 		someValue = someValue.Elem()
+	} else {
+		return nil, ErrMarshallAnyWithoutPtr
 	}
-	magicField := someValue.FieldByName("Magic")
+	magicField := someValue.FieldByName(MagicFieldName)
 	magic, errMagic := EncodeMagic(nID, sID, cID)
 	if errMagic != nil {
 		return nil, wfl.ErrorWithSkip(errMagic, 2)
@@ -307,13 +312,12 @@ func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 		if errSchema != nil {
 			return errSchema
 		}
-	} else {
-		if nID != dst.NamespaceID() {
-			return ErrWrongNamespace
-		}
-		if sID != dst.SchemaID() {
-			return ErrWrongSchema
-		}
+	}
+	if nID != dst.NamespaceID() {
+		return ErrWrongNamespace
+	}
+	if sID != dst.SchemaID() {
+		return ErrWrongSchema
 	}
 
 	return avro.Unmarshal(schema, data, dst)

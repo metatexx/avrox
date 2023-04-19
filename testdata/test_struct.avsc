@@ -1,0 +1,164 @@
+{
+  "type": "record",
+  "namespace": "testing",
+  "name": "TestStruct",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "avrox_magic_4",
+        "size": 4,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "FieldString",
+      "type": "string"
+    },
+    {
+      "name": "FieldSubStruct",
+      "type": {
+        "type": "record",
+        "name": "TestSubStruct",
+        "fields": [
+          {
+            "name": "FieldSubString",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FieldPtrSubStruct",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "TestPtrSubStruct",
+          "fields": [
+            {
+              "name": "FieldSubString",
+              "type": "string"
+            },
+            {
+              "name": "FieldPtrInt8",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "FieldPtrFloat64",
+              "type": [
+                "null",
+                "double"
+              ]
+            },
+            {
+              "name": "FieldPtrFloat32",
+              "type": [
+                "null",
+                "float"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FieldPtrSubStringNil",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "TestPtrSubStruct",
+          "fields": [
+            {
+              "name": "FieldSubString",
+              "type": "string"
+            },
+            {
+              "name": "FieldPtrInt8",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "FieldPtrFloat64",
+              "type": [
+                "null",
+                "double"
+              ]
+            },
+            {
+              "name": "FieldPtrFloat32",
+              "type": [
+                "null",
+                "double"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FieldSlicePtrSubStruct",
+      "type": {
+        "items": [
+          "null",
+          {
+            "type": "record",
+            "name": "TestPtrSubStruct",
+            "fields": [
+              {
+                "name": "FieldSubString",
+                "type": "string"
+              },
+              {
+                "name": "FieldPtrInt8",
+                "type": [
+                  "null",
+                  "int"
+                ]
+              },
+              {
+                "name": "FieldPtrFloat64",
+                "type": [
+                  "null",
+                  "double"
+                ]
+              },
+              {
+                "name": "FieldPtrFloat32",
+                "type": [
+                  "null",
+                  "double"
+                ]
+              }
+            ]
+          }
+        ],
+        "type": "array"
+      }
+    },
+    {
+      "name": "FieldTime",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "FieldDate",
+      "type": {
+        "logicalType": "date",
+        "type": "int"
+      }
+    },
+    {
+      "name": "FieldInt",
+      "type": "int"
+    }
+  ]
+}
