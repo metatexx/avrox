@@ -188,6 +188,22 @@ func TestMarshalBasicByteSlice(t *testing.T) {
 	assert.Equal(t, value, result)
 }
 
+func TestMarshalBasicTime(t *testing.T) {
+	value := avrox.AvroTime(time.Now())
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicTimeID, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	result, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.Equal(t, value, result)
+}
+
 func TestMarshalMapStringAnySnappy(t *testing.T) {
 	value := map[string]any{"foo": 1, "bar": "baz", "error": false}
 	data, err := avrox.MarshalBasic(value, avrox.CompSnappy)

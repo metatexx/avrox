@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "namespace": "testing",
+  "name": "BasicTime",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "Magic_4",
+        "size": 4,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "Value",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    }
+  ]
+}

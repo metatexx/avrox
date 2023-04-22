@@ -12,8 +12,6 @@ type BasicString struct {
 
 //go:generate avscgen -ns "testing" . BasicString
 //go:embed basic_string.avsc
-
-// BasicStringAVSC is the AVRO schema for the BasicString struct type
 var BasicStringAVSC string
 
 // AVSC returns the AVRO schema for the BasicString struct type

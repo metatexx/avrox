@@ -15,3 +15,6 @@ const BasicByteSliceID SchemaID = 3
 
 // BasicMapStringAnyID is the id for the avro schema of struct BasicMapStringAny
 const BasicMapStringAnyID SchemaID = 4
+
+// BasicTimeID is the id for the avro schema of struct BasicTime
+const BasicTimeID SchemaID = 5

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/golang/snappy"
 	"github.com/hamba/avro/v2"
@@ -70,6 +71,7 @@ var (
 	ErrNoBasicInt              = errors.New("no basic int")
 	ErrNoBasicByteSlice        = errors.New("no basic byte slice")
 	ErrNoBasicMapStringAny     = errors.New("no basic map string any")
+	ErrNoBasicTime             = errors.New("no basic time")
 	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
 	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
@@ -262,6 +264,18 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
+	case time.Time:
+		kind := &BasicTime{
+			Magic: MustEncodeBasicMagic(BasicTimeID, cID),
+			Value: v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
+	case *time.Time:
+		kind := &BasicTime{
+			Magic: MustEncodeBasicMagic(BasicTimeID, cID),
+			Value: *v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
 	default:
 		return nil, errors.New("unsupported type")
 	}
@@ -395,6 +409,16 @@ func UnmarshalBasic(src []byte) (any, error) {
 		}
 		if nID != NamespaceBasic && sID != BasicByteSliceID {
 			return nil, ErrNoBasicMapStringAny
+		}
+		return kind.Value, nil
+	case BasicTimeID:
+		kind := &BasicTime{}
+		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicTimeAVSC), kind)
+		if errUnmarshalAny != nil {
+			return nil, errUnmarshalAny
+		}
+		if nID != NamespaceBasic && sID != BasicTimeID {
+			return nil, ErrNoBasicTime
 		}
 		return kind.Value, nil
 	default:
