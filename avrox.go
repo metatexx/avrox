@@ -60,6 +60,7 @@ var (
 	ErrMarkerInvalid           = fmt.Errorf("data should start with magic marker (0x%02x)", Marker)
 	ErrParityCheckFailed       = errors.New("parity check failed")
 	ErrMarshallingFailed       = errors.New("marshalling failed")
+	ErrMissingMagicField       = errors.New("missing magic field in struct")
 	ErrMarshallAnyWithoutPtr   = errors.New("no ptr src for MarshalAny")
 	ErrSchemaNil               = errors.New("schema is nil")
 	ErrSchemaInvalid           = errors.New("schema is invalid")
@@ -198,6 +199,9 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID 
 		return nil, ErrMarshallAnyWithoutPtr
 	}
 	magicField := someValue.FieldByName(MagicFieldName)
+	if !magicField.IsValid() {
+		return nil, ErrMissingMagicField
+	}
 	magic, errMagic := EncodeMagic(nID, sID, cID)
 	if errMagic != nil {
 		return nil, wfl.ErrorWithSkip(errMagic, 2)
