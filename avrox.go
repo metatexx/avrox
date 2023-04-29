@@ -75,6 +75,7 @@ var (
 	ErrNoBasicTime             = errors.New("no basic time")
 	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
 	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
+	ErrNotAvroX                = errors.New("data is not avrox")
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
 )
 
@@ -362,6 +363,9 @@ func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, 
 func UnmarshalBasic(src []byte) (any, error) {
 	if len(src) == 0 {
 		return nil, nil
+	}
+	if len(src) < 4 {
+		return nil, ErrNotAvroX
 	}
 	nID, sID, _, err := DecodeMagic(src[:4])
 	if err != nil {
