@@ -76,6 +76,8 @@ var (
 	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
 	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
 	ErrNotAvroX                = errors.New("data is not avrox")
+	ErrNoPointerDestination    = errors.New("not a pointer destination")
+	ErrSchemerNotFound         = errors.New("schema from schemer is not in the given slice")
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
 )
 
@@ -358,6 +360,38 @@ func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, 
 	}
 
 	return nID, sID, avro.Unmarshal(schema, data, dst)
+}
+
+// UnmarshalUnion expects a slice with preallocated schemers and uses the magic
+// in the data to unmarshal the correct one. It will return the used schema as any
+// If no schema fits it will return an error
+func UnmarshalSchemer(src []byte, schemers ...Schemer) (any, error) {
+	if len(src) == 0 {
+		return nil, nil
+	}
+	if len(src) < 4 {
+		return nil, ErrNotAvroX
+	}
+	nID, sID, _, err := DecodeMagic(src[:4])
+	if err != nil {
+		return nil, err
+	}
+
+	for _, schemer := range schemers {
+		if schemer.NamespaceID() == nID && schemer.SchemaID() == sID {
+			// When we only get a nil pointer of the Schemer type, we allocate one
+			v := reflect.ValueOf(schemer)
+			if v.Kind() == reflect.Ptr {
+				if v.IsNil() {
+					schemer = reflect.New(v.Type().Elem()).Interface().(Schemer)
+				}
+			} else {
+				return nil, ErrNoPointerDestination
+			}
+			return schemer, Unmarshal(src, schemer, nil)
+		}
+	}
+	return nil, ErrSchemerNotFound
 }
 
 func UnmarshalBasic(src []byte) (any, error) {
