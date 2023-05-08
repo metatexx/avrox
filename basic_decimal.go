@@ -10,7 +10,7 @@ import (
 // BasicDecima is the container type to store a *bigRat value into a single avro schema
 type BasicDecimal struct {
 	Magic [4]byte
-	Value *big.Rat `avsc:"precision:12,scale:2"`
+	Value *big.Rat
 }
 
 //go:generate avscgen -ns "basics" -o avsc/ . BasicDecimal
