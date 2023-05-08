@@ -13,8 +13,8 @@ type BasicTime struct {
 	Value time.Time
 }
 
-//go:generate avscgen -ns "testing" . BasicTime
-//go:embed basic_time.avsc
+//go:generate avscgen -ns "basics" -o avsc/ . BasicTime
+//go:embed avsc/basic_time.avsc
 var BasicTimeAVSC string
 
 // AVSC returns the AVRO schema for the BasicTime struct type

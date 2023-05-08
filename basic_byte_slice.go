@@ -2,8 +2,8 @@ package avrox
 
 import _ "embed"
 
-//go:generate avscgen -ns "testing" . BasicByteSlice
-//go:embed basic_byte_slice.avsc
+//go:generate avscgen -ns "basics" -o avsc/ . BasicByteSlice
+//go:embed avsc/basic_byte_slice.avsc
 var BasicByteSliceAVSC string
 
 type BasicByteSlice struct {

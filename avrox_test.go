@@ -5,6 +5,7 @@ import (
 	"github.com/hamba/avro/v2"
 	"github.com/metatexx/avrox/testdata"
 	"math"
+	"math/big"
 	"testing"
 	"time"
 
@@ -197,6 +198,22 @@ func TestMarshalBasicTime(t *testing.T) {
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicTimeID, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	result, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.Equal(t, value, result)
+}
+
+func TestMarshalDecimalTime(t *testing.T) {
+	value, _ := (&big.Rat{}).SetString("1/10")
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicDecimalID, s)
 	assert.Equal(t, avrox.CompNone, c)
 
 	result, err4 := avrox.UnmarshalBasic(data)

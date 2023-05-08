@@ -2,8 +2,8 @@ package avrox
 
 import _ "embed"
 
-//go:generate avscgen -ns "testing" . BasicInt
-//go:embed basic_int.avsc
+//go:generate avscgen -ns "basics" -o avsc/ . BasicInt
+//go:embed avsc/basic_int.avsc
 var BasicIntAVSC string
 
 type BasicInt struct {

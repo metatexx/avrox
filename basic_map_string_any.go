@@ -2,8 +2,8 @@ package avrox
 
 import _ "embed"
 
-//go:generate avscgen -ns "testing" . BasicMapStringAny
-//go:embed basic_map_string_any.avsc
+//go:generate avscgen -ns "basics" -o avsc/ . BasicMapStringAny
+//go:embed avsc/basic_map_string_any.avsc
 var BasicMapStringAnyAVSC string
 
 type BasicMapStringAny struct {
