@@ -7,7 +7,7 @@ import _ "embed"
 var BasicMapStringAnyAVSC string
 
 type BasicMapStringAny struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value map[string]any
 }
 
@@ -21,7 +21,7 @@ func (s *BasicMapStringAny) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicInt struct type
-func (s *BasicMapStringAny) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicInt struct type
+func (s *BasicMapStringAny) SchemaID() SchemVerID {
 	return BasicMapStringAnyID
 }

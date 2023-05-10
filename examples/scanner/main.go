@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/metatexx/avrox"
 	"os"
 )
 
@@ -11,5 +10,5 @@ func main() {
 		fmt.Println("Usage: scanner <path>")
 		os.Exit(0)
 	}
-	avrox.Scanner(os.Args[1])
+	Scanner(os.Args[1])
 }

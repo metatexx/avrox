@@ -7,7 +7,7 @@ import _ "embed"
 var BasicByteSliceAVSC string
 
 type BasicByteSlice struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value []byte
 }
 
@@ -21,7 +21,7 @@ func (s *BasicByteSlice) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicInt struct type
-func (s *BasicByteSlice) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicInt struct type
+func (s *BasicByteSlice) SchemaID() SchemVerID {
 	return BasicByteSliceID
 }

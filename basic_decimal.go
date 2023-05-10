@@ -9,7 +9,7 @@ import (
 
 // BasicDecima is the container type to store a *bigRat value into a single avro schema
 type BasicDecimal struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value *big.Rat
 }
 
@@ -27,7 +27,7 @@ func (s *BasicDecimal) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicDecimal struct type
-func (s *BasicDecimal) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicDecimal struct type
+func (s *BasicDecimal) SchemaID() SchemVerID {
 	return BasicTimeID
 }

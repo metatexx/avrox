@@ -6,7 +6,7 @@ import _ "embed"
 
 // BasicString is the container type to store a string in a single avro schema
 type BasicString struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value string
 }
 
@@ -24,7 +24,7 @@ func (s *BasicString) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicString struct type
-func (s *BasicString) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicString struct type
+func (s *BasicString) SchemaID() SchemVerID {
 	return BasicStringID
 }

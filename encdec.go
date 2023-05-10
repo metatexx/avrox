@@ -14,15 +14,15 @@ func compressData(data []byte, cID CompressionID) ([]byte, error) {
 	case CompNone:
 		return data, nil
 	case CompSnappy:
-		edata := snappy.Encode(nil, data[4:])
-		return append(data[0:4], edata...), nil
+		edata := snappy.Encode(nil, data[MagicLen:])
+		return append(data[0:MagicLen], edata...), nil
 	case CompFlate:
 		var eData bytes.Buffer
 		w, err := flate.NewWriter(&eData, flate.DefaultCompression)
 		if err != nil {
 			return nil, err
 		}
-		_, err = w.Write(data[4:])
+		_, err = w.Write(data[MagicLen:])
 		if err != nil {
 			return nil, err
 		}
@@ -30,11 +30,11 @@ func compressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return append(data[0:4], eData.Bytes()...), nil
+		return append(data[0:MagicLen], eData.Bytes()...), nil
 	case CompGZip:
 		var eData bytes.Buffer
 		w := gzip.NewWriter(&eData)
-		_, err := w.Write(data[4:])
+		_, err := w.Write(data[MagicLen:])
 		if err != nil {
 			return nil, err
 		}
@@ -42,7 +42,7 @@ func compressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return append(data[0:4], eData.Bytes()...), nil
+		return append(data[0:MagicLen], eData.Bytes()...), nil
 	default:
 		return nil, wfl.ErrorWithSkip(ErrCompressionUnsupported, 3)
 	}
@@ -54,13 +54,13 @@ func decompressData(data []byte, cID CompressionID) ([]byte, error) {
 	case CompNone:
 		return data, nil
 	case CompSnappy:
-		dData, errDecode := snappy.Decode(nil, data[4:])
+		dData, errDecode := snappy.Decode(nil, data[MagicLen:])
 		if errDecode != nil {
 			return nil, ErrDecompress
 		}
-		return append(data[:4], dData...), nil
+		return append(data[:MagicLen], dData...), nil
 	case CompFlate:
-		b := flate.NewReader(bytes.NewReader(data[4:]))
+		b := flate.NewReader(bytes.NewReader(data[MagicLen:]))
 		var dData bytes.Buffer
 		_, err := dData.ReadFrom(b)
 		if err != nil {
@@ -70,9 +70,9 @@ func decompressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("close flate error: %w", err)
 		}
-		return append(data[0:4], dData.Bytes()...), nil
+		return append(data[0:MagicLen], dData.Bytes()...), nil
 	case CompGZip:
-		b, err := gzip.NewReader(bytes.NewReader(data[4:]))
+		b, err := gzip.NewReader(bytes.NewReader(data[MagicLen:]))
 		if err != nil {
 			return nil, fmt.Errorf("new reader gzip error: %w", err)
 		}
@@ -85,7 +85,7 @@ func decompressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("close gzip error: %w", err)
 		}
-		return append(data[0:4], dData.Bytes()...), nil
+		return append(data[0:MagicLen], dData.Bytes()...), nil
 	default:
 		return nil, ErrCompressionUnsupported
 	}

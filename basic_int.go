@@ -7,7 +7,7 @@ import _ "embed"
 var BasicIntAVSC string
 
 type BasicInt struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value int
 }
 
@@ -21,7 +21,7 @@ func (s *BasicInt) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicInt struct type
-func (s *BasicInt) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicInt struct type
+func (s *BasicInt) SchemaID() SchemVerID {
 	return BasicIntID
 }

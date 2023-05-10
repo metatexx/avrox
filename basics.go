@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func MustEncodeBasicMagic(schemaID SchemaID, compression CompressionID) Magic {
+func MustEncodeBasicMagic(schemaID SchemVerID, compression CompressionID) Magic {
 	m, err := EncodeMagic(NamespaceBasic, schemaID, compression)
 	if err != nil {
 		panic(err)
@@ -98,10 +98,10 @@ func UnmarshalBasic(src []byte) (any, error) {
 	if len(src) == 0 {
 		return nil, nil
 	}
-	if len(src) < 4 {
+	if len(src) < MagicLen {
 		return nil, ErrNotAvroX
 	}
-	nID, sID, _, err := DecodeMagic(src[:4])
+	nID, sID, _, err := DecodeMagic(src[:MagicLen])
 	if err != nil {
 		return nil, err
 	}

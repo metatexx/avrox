@@ -17,7 +17,7 @@ func TestEncodeDecode(t *testing.T) {
 	testCases := []struct {
 		namespace   avrox.NamespaceID
 		compression avrox.CompressionID
-		schema      avrox.SchemaID
+		schema      avrox.SchemVerID
 		shouldError bool
 	}{
 		{0, 0, 0, false},
@@ -25,11 +25,14 @@ func TestEncodeDecode(t *testing.T) {
 		{31, 7, 8191, false},
 		{17, 2, 4567, false},
 		{-1, 0, 0, true},
-		{32, 0, 0, true},
+		{avrox.NamespaceMax + 1, 0, 0, true},
+		{avrox.NamespaceMax, 0, 0, false},
 		{0, -1, 0, true},
-		{0, 8, 0, true},
+		{0, avrox.CompMax, 0, false},
+		{0, avrox.CompMax + 1, 0, true},
 		{0, 0, -1, true},
-		{0, 0, 8192, true},
+		{0, 0, avrox.SchemaMax, false},
+		{0, 0, avrox.SchemaMax + 1, true},
 	}
 
 	// Test encoding with valid and invalid input values
@@ -93,7 +96,7 @@ func TestMarshal(t *testing.T) {
 	data, err2 := avrox.Marshal(&mt, avrox.CompNone, nil)
 	assert.NoError(t, err2)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicStringID, s)
@@ -113,7 +116,7 @@ func TestMarshalSnappy(t *testing.T) {
 	data, errMarshal := avrox.Marshal(&mt, avrox.CompSnappy, nil)
 	assert.NoError(t, errMarshal)
 
-	n, s, c, errDecodeMagic := avrox.DecodeMagic(data[:4])
+	n, s, c, errDecodeMagic := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, errDecodeMagic)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicStringID, s)
@@ -129,7 +132,7 @@ func TestMarshalBasicString(t *testing.T) {
 	data, err := avrox.MarshalBasic("bar", avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicStringID, s)
@@ -144,7 +147,7 @@ func TestMarshalBasicInt(t *testing.T) {
 	data, err := avrox.MarshalBasic(42, avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicIntID, s)
@@ -178,7 +181,7 @@ func TestMarshalBasicByteSlice(t *testing.T) {
 	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicByteSliceID, s)
@@ -194,7 +197,7 @@ func TestMarshalBasicTime(t *testing.T) {
 	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicTimeID, s)
@@ -210,7 +213,7 @@ func TestMarshalDecimalTime(t *testing.T) {
 	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicDecimalID, s)
@@ -226,7 +229,7 @@ func TestMarshalMapStringAnySnappy(t *testing.T) {
 	data, err := avrox.MarshalBasic(value, avrox.CompSnappy)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicMapStringAnyID, s)
@@ -242,7 +245,7 @@ func TestMarshalMapStringAnySnappyPtr(t *testing.T) {
 	data, err := avrox.MarshalBasic(&value, avrox.CompSnappy)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespaceBasic, n)
 	assert.Equal(t, avrox.BasicMapStringAnyID, s)
@@ -290,7 +293,7 @@ func TestMarshalAny(t *testing.T) {
 	data, err = avrox.MarshalAny(mt, schema, avrox.NamespacePrivate, avrox.SchemaUndefined, avrox.CompNone)
 	assert.NoError(t, err)
 
-	n, s, c, err3 := avrox.DecodeMagic(data[:4])
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)
 	assert.Equal(t, avrox.NamespacePrivate, n)
 	assert.Equal(t, avrox.SchemaUndefined, s)

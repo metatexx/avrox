@@ -1,13 +1,13 @@
 {
   "type": "record",
-  "namespace": "testing",
+  "namespace": "basics",
   "name": "BasicString",
   "fields": [
     {
       "name": "Magic",
       "type": {
-        "name": "Magic_4",
-        "size": 4,
+        "name": "Magic_8",
+        "size": 8,
         "type": "fixed"
       }
     },

@@ -1,13 +1,13 @@
 {
   "type": "record",
-  "namespace": "testing",
+  "namespace": "basics",
   "name": "TestStruct",
   "fields": [
     {
       "name": "Magic",
       "type": {
-        "name": "avrox_magic_4",
-        "size": 4,
+        "name": "avrox_magic_8",
+        "size": 8,
         "type": "fixed"
       }
     },
@@ -95,7 +95,7 @@
               "name": "FieldPtrFloat32",
               "type": [
                 "null",
-                "double"
+                "float"
               ]
             }
           ]
@@ -133,7 +133,7 @@
                 "name": "FieldPtrFloat32",
                 "type": [
                   "null",
-                  "double"
+                  "float"
                 ]
               }
             ]

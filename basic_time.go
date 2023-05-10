@@ -9,7 +9,7 @@ import (
 
 // BasicString is the container type to store a string in a single avro schema
 type BasicTime struct {
-	Magic [4]byte
+	Magic [MagicLen]byte
 	Value time.Time
 }
 
@@ -27,7 +27,7 @@ func (s *BasicTime) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemaID returns the schema id for the BasicTime struct type
-func (s *BasicTime) SchemaID() SchemaID {
+// SchemVerID returns the schema id for the BasicTime struct type
+func (s *BasicTime) SchemaID() SchemVerID {
 	return BasicTimeID
 }
