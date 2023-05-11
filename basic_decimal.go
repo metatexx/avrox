@@ -27,7 +27,7 @@ func (s *BasicDecimal) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemVerID returns the schema id for the BasicDecimal struct type
-func (s *BasicDecimal) SchemaID() SchemVerID {
+// SchemaID returns the schema id for the BasicDecimal struct type
+func (s *BasicDecimal) SchemaID() SchemaID {
 	return BasicTimeID
 }

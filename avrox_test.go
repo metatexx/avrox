@@ -17,7 +17,7 @@ func TestEncodeDecode(t *testing.T) {
 	testCases := []struct {
 		namespace   avrox.NamespaceID
 		compression avrox.CompressionID
-		schema      avrox.SchemVerID
+		schema      avrox.SchemaID
 		shouldError bool
 	}{
 		{0, 0, 0, false},

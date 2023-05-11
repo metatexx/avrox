@@ -21,7 +21,7 @@ func (s *BasicMapStringAny) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemVerID returns the schema id for the BasicInt struct type
-func (s *BasicMapStringAny) SchemaID() SchemVerID {
+// SchemaID returns the schema id for the BasicInt struct type
+func (s *BasicMapStringAny) SchemaID() SchemaID {
 	return BasicMapStringAnyID
 }

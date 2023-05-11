@@ -57,7 +57,7 @@ func EncodePrivateMagic(compression CompressionID) (Magic, error) {
 	return EncodeMagic(0, 0, compression)
 }
 
-func EncodeMagic(namespace NamespaceID, schema SchemVerID, compression CompressionID) (Magic, error) {
+func EncodeMagic(namespace NamespaceID, schema SchemaID, compression CompressionID) (Magic, error) {
 	if namespace < 0 || namespace > NamespaceMax {
 		return Magic{}, ErrNamespaceIDOutOfRange
 	}
@@ -93,7 +93,7 @@ func EncodeMagic(namespace NamespaceID, schema SchemVerID, compression Compressi
 	return data, nil
 }
 
-func DecodeMagic(data []byte) (NamespaceID, SchemVerID, CompressionID, error) {
+func DecodeMagic(data []byte) (NamespaceID, SchemaID, CompressionID, error) {
 	if len(data) != MagicLen {
 		return 0, 0, 0, ErrLengthInvalid
 	}
@@ -104,7 +104,7 @@ func DecodeMagic(data []byte) (NamespaceID, SchemVerID, CompressionID, error) {
 
 	compression := CompressionID(int(data[1]))
 	namespace := NamespaceID((int(data[2]) << 8) | int(data[3]))
-	schema := SchemVerID((int(data[4]) << 16) | (int(data[5]) << 8) | int(data[6]))
+	schema := SchemaID((int(data[4]) << 16) | (int(data[5]) << 8) | int(data[6]))
 	parityBits := data[7]
 	calculatedParity := calculateParity(data)
 

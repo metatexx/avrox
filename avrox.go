@@ -11,13 +11,13 @@ import (
 
 type CompressionID int
 type NamespaceID int
-type SchemVerID int // Schema<<8 | 8 bit version
+type SchemaID int // Schema<<8 | 8 bit version
 
-func PackSchemVer(schemaID SchemVerID, version int) SchemVerID {
-	return SchemVerID(int(schemaID)<<8 | (version & 0xff))
+func PackSchemVer(schemaID SchemaID, version int) SchemaID {
+	return SchemaID(int(schemaID)<<8 | (version & 0xff))
 }
 
-func UnpackSchemVer(schemaVerID SchemVerID) (int, int) {
+func UnpackSchemVer(schemaVerID SchemaID) (int, int) {
 	return int(schemaVerID >> 8), int(schemaVerID & 0xff)
 }
 
@@ -41,8 +41,8 @@ const (
 	NamespaceMax       NamespaceID = 65535
 
 	// Schema 0 means that it is not defined (but may belong to a namespace)
-	SchemaUndefined SchemVerID = 0
-	SchemaMax       SchemVerID = 16777215 // Schema<<8 | Version
+	SchemaUndefined SchemaID = 0
+	SchemaMax       SchemaID = 16777215 // Schema<<8 | Version
 
 	MagicFieldName = "Magic"
 )
@@ -77,7 +77,7 @@ var (
 	//ErrBasicTypeNotSupported    = errors.New("basic type not supported")
 )
 
-func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemVerID, cID CompressionID) ([]byte, error) {
+func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID CompressionID) ([]byte, error) {
 	if schema == nil {
 		return nil, wfl.ErrorWithSkip(ErrSchemaNil, 2)
 	}
@@ -108,7 +108,7 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemVerID, cI
 
 }
 
-func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemVerID, error) {
+func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemaID, error) {
 	if len(data) <= MagicLen || !IsMagic(data[0:MagicLen]) {
 		return nil, 0, 0, ErrDataFormatNotDetected
 	}
@@ -123,7 +123,7 @@ func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemVerID, error) {
 	return data, nID, sID, err
 }
 
-func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemVerID, error) {
+func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemaID, error) {
 	if len(data) == 0 {
 		return 0, 0, nil
 	}

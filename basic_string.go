@@ -24,7 +24,7 @@ func (s *BasicString) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemVerID returns the schema id for the BasicString struct type
-func (s *BasicString) SchemaID() SchemVerID {
+// SchemaID returns the schema id for the BasicString struct type
+func (s *BasicString) SchemaID() SchemaID {
 	return BasicStringID
 }

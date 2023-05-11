@@ -27,7 +27,7 @@ func (s *BasicTime) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemVerID returns the schema id for the BasicTime struct type
-func (s *BasicTime) SchemaID() SchemVerID {
+// SchemaID returns the schema id for the BasicTime struct type
+func (s *BasicTime) SchemaID() SchemaID {
 	return BasicTimeID
 }

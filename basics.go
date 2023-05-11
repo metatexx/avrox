@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func MustEncodeBasicMagic(schemaID SchemVerID, compression CompressionID) Magic {
+func MustEncodeBasicMagic(schemaID SchemaID, compression CompressionID) Magic {
 	m, err := EncodeMagic(NamespaceBasic, schemaID, compression)
 	if err != nil {
 		panic(err)

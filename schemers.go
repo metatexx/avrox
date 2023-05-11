@@ -10,7 +10,7 @@ import (
 type Schemer interface {
 	AVSC() string
 	NamespaceID() NamespaceID
-	SchemaID() SchemVerID
+	SchemaID() SchemaID
 }
 
 func Marshal(src Schemer, cID CompressionID, schema avro.Schema) ([]byte, error) {

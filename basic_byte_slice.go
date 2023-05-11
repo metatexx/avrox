@@ -21,7 +21,7 @@ func (s *BasicByteSlice) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
-// SchemVerID returns the schema id for the BasicInt struct type
-func (s *BasicByteSlice) SchemaID() SchemVerID {
+// SchemaID returns the schema id for the BasicInt struct type
+func (s *BasicByteSlice) SchemaID() SchemaID {
 	return BasicByteSliceID
 }
