@@ -8,15 +8,15 @@ import (
 )
 
 type Schemer interface {
-	AVSC() string
 	NamespaceID() NamespaceID
 	SchemaID() SchemaID
+	Schema() string
 }
 
 func Marshal(src Schemer, cID CompressionID, schema avro.Schema) ([]byte, error) {
 	if schema == nil {
 		var parseErr error
-		schema, parseErr = avro.Parse(src.AVSC())
+		schema, parseErr = avro.Parse(src.Schema())
 		if parseErr != nil {
 			return nil, ErrSchemaInvalid
 		}
@@ -78,7 +78,7 @@ func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 
 	if schema == nil {
 		var errSchema error
-		schema, errSchema = avro.Parse(dst.AVSC())
+		schema, errSchema = avro.Parse(dst.Schema())
 		if errSchema != nil {
 			return errSchema
 		}
@@ -102,11 +102,11 @@ func JoinedSchemas(schemers ...Schemer) string {
 			if idx > 0 {
 				sb.WriteRune(',')
 			}
-			sb.WriteString(schema.AVSC())
+			sb.WriteString(schema.Schema())
 		}
 		sb.WriteString("]")
 	} else if len(schemers) == 1 {
-		sb.WriteString(schemers[0].AVSC())
+		sb.WriteString(schemers[0].Schema())
 	}
 	return sb.String()
 }

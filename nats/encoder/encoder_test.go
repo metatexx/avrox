@@ -21,7 +21,7 @@ func TestEncoder(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, value, decoded)
 	assert.Equal(t, avrox.NamespaceBasic, decoded.NamespaceID())
-	assert.Equal(t, avrox.BasicMapStringAnyID, decoded.SchemaID())
+	assert.Equal(t, avrox.BasicMapStringAnySchemaID, decoded.SchemaID())
 }
 
 func encodeDecode(n int) int {

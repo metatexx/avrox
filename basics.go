@@ -21,67 +21,67 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	switch v := src.(type) {
 	case string:
 		kind := &BasicString{
-			Magic: MustEncodeBasicMagic(BasicStringID, cID),
+			Magic: MustEncodeBasicMagic(BasicStringSchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
 	case *string:
 		kind := &BasicString{
-			Magic: MustEncodeBasicMagic(BasicStringID, cID),
+			Magic: MustEncodeBasicMagic(BasicStringSchemaID, cID),
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicStringAVSC), kind)
 	case int:
 		kind := &BasicInt{
-			Magic: MustEncodeBasicMagic(BasicIntID, cID),
+			Magic: MustEncodeBasicMagic(BasicIntSchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
 	case *int:
 		kind := &BasicInt{
-			Magic: MustEncodeBasicMagic(BasicIntID, cID),
+			Magic: MustEncodeBasicMagic(BasicIntSchemaID, cID),
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicIntAVSC), kind)
 	case []byte:
 		kind := &BasicByteSlice{
-			Magic: MustEncodeBasicMagic(BasicByteSliceID, cID),
+			Magic: MustEncodeBasicMagic(BasicByteSliceSchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
 	case *[]byte:
 		kind := &BasicByteSlice{
-			Magic: MustEncodeBasicMagic(BasicByteSliceID, cID),
+			Magic: MustEncodeBasicMagic(BasicByteSliceSchemaID, cID),
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicByteSliceAVSC), kind)
 	case map[string]any:
 		kind := &BasicMapStringAny{
-			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, cID),
+			Magic: MustEncodeBasicMagic(BasicMapStringAnySchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
 	case *map[string]any:
 		kind := &BasicMapStringAny{
-			Magic: MustEncodeBasicMagic(BasicMapStringAnyID, cID),
+			Magic: MustEncodeBasicMagic(BasicMapStringAnySchemaID, cID),
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicMapStringAnyAVSC), kind)
 	case time.Time:
 		kind := &BasicTime{
-			Magic: MustEncodeBasicMagic(BasicTimeID, cID),
+			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
 	case *time.Time:
 		kind := &BasicTime{
-			Magic: MustEncodeBasicMagic(BasicTimeID, cID),
+			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
 			Value: *v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
 	case *big.Rat:
 		kind := &BasicDecimal{
-			Magic: MustEncodeBasicMagic(BasicDecimalID, cID),
+			Magic: MustEncodeBasicMagic(BasicDecimalSchemaID, cID),
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicDecimalAVSC), kind)
@@ -113,63 +113,63 @@ func UnmarshalBasic(src []byte) (any, error) {
 
 	//nolint:exhaustive // only runs for NamespaceBasic
 	switch sID {
-	case BasicStringID:
+	case BasicStringSchemaID:
 		kind := &BasicString{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicStringAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicStringID {
+		if nID != NamespaceBasic && sID != BasicStringSchemaID {
 			return nil, ErrNoBasicString
 		}
 		return kind.Value, nil
-	case BasicIntID:
+	case BasicIntSchemaID:
 		kind := &BasicInt{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicIntAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicIntID {
+		if nID != NamespaceBasic && sID != BasicIntSchemaID {
 			return nil, ErrNoBasicInt
 		}
 		return kind.Value, nil
-	case BasicByteSliceID:
+	case BasicByteSliceSchemaID:
 		kind := &BasicByteSlice{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicByteSliceAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicByteSliceID {
+		if nID != NamespaceBasic && sID != BasicByteSliceSchemaID {
 			return nil, ErrNoBasicByteSlice
 		}
 		return kind.Value, nil
-	case BasicMapStringAnyID:
+	case BasicMapStringAnySchemaID:
 		kind := &BasicMapStringAny{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicMapStringAnyAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicByteSliceID {
+		if nID != NamespaceBasic && sID != BasicByteSliceSchemaID {
 			return nil, ErrNoBasicMapStringAny
 		}
 		return kind.Value, nil
-	case BasicTimeID:
+	case BasicTimeSchemaID:
 		kind := &BasicTime{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicTimeAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicTimeID {
+		if nID != NamespaceBasic && sID != BasicTimeSchemaID {
 			return nil, ErrNoBasicTime
 		}
 		return kind.Value, nil
-	case BasicDecimalID:
+	case BasicDecimalSchemaID:
 		kind := &BasicDecimal{}
 		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicDecimalAVSC), kind)
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicTimeID {
+		if nID != NamespaceBasic && sID != BasicTimeSchemaID {
 			return nil, ErrNoBasicTime
 		}
 		return kind.Value, nil

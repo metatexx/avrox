@@ -18,7 +18,7 @@ type BasicDecimal struct {
 var BasicDecimalAVSC string
 
 // AVSC returns the AVRO schema for the BasicDecimal struct type
-func (s *BasicDecimal) AVSC() string {
+func (s *BasicDecimal) Schema() string {
 	return BasicDecimalAVSC
 }
 
@@ -29,5 +29,5 @@ func (s *BasicDecimal) NamespaceID() NamespaceID {
 
 // SchemaID returns the schema id for the BasicDecimal struct type
 func (s *BasicDecimal) SchemaID() SchemaID {
-	return BasicTimeID
+	return BasicTimeSchemaID
 }

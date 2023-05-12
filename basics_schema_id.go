@@ -5,21 +5,21 @@ package avrox
 // SchemaIDs for the supported basic types
 
 const (
-	// BasicStringID is the id for the avro schema of struct BasicString
-	BasicStringID SchemaID = 1
+	// BasicStringSchemaID is the id for the avro schema of struct BasicString
+	BasicStringSchemaID SchemaID = 1
 
-	// BasicIntID is the id for the avro schema of struct BasicInt
-	BasicIntID SchemaID = 2
+	// BasicIntSchemaID is the id for the avro schema of struct BasicInt
+	BasicIntSchemaID SchemaID = 2
 
-	// BasicByteSliceID is the id for the avro schema of struct BasicInt
-	BasicByteSliceID SchemaID = 3
+	// BasicByteSliceSchemaID is the id for the avro schema of struct BasicInt
+	BasicByteSliceSchemaID SchemaID = 3
 
-	// BasicMapStringAnyID is the id for the avro schema of struct BasicMapStringAny
-	BasicMapStringAnyID SchemaID = 4
+	// BasicMapStringAnySchemaID is the id for the avro schema of struct BasicMapStringAny
+	BasicMapStringAnySchemaID SchemaID = 4
 
-	// BasicTimeID is the id for the avro schema of struct BasicTime
-	BasicTimeID SchemaID = 5
+	// BasicTimeSchemaID is the id for the avro schema of struct BasicTime
+	BasicTimeSchemaID SchemaID = 5
 
-	// BasicDecimalID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.ficed)
-	BasicDecimalID SchemaID = 6
+	// BasicDecimalSchemaID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.ficed)
+	BasicDecimalSchemaID SchemaID = 6
 )

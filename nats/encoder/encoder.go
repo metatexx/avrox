@@ -44,7 +44,7 @@ func (pb *AvroXEncoder) Encode(_ string, v interface{}) ([]byte, error) {
 	schema, found := pb.SchmemaCache.Load(cacheIndex)
 	if !found {
 		var errParse error
-		schema, errParse = avro.Parse(i.AVSC())
+		schema, errParse = avro.Parse(i.Schema())
 		if errParse != nil {
 			return nil, avrox.ErrSchemaInvalid
 		}
@@ -71,7 +71,7 @@ func (pb *AvroXEncoder) Decode(_ string, data []byte, vPtr interface{}) error {
 	schema, found := pb.SchmemaCache.Load(cacheIndex)
 	if !found {
 		var errParse error
-		schema, errParse = avro.Parse(i.AVSC())
+		schema, errParse = avro.Parse(i.Schema())
 		if errParse != nil {
 			return avrox.ErrSchemaInvalid
 		}

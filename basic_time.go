@@ -18,7 +18,7 @@ type BasicTime struct {
 var BasicTimeAVSC string
 
 // AVSC returns the AVRO schema for the BasicTime struct type
-func (s *BasicTime) AVSC() string {
+func (s *BasicTime) Schema() string {
 	return BasicTimeAVSC
 }
 
@@ -29,5 +29,5 @@ func (s *BasicTime) NamespaceID() NamespaceID {
 
 // SchemaID returns the schema id for the BasicTime struct type
 func (s *BasicTime) SchemaID() SchemaID {
-	return BasicTimeID
+	return BasicTimeSchemaID
 }

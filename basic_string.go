@@ -15,7 +15,7 @@ type BasicString struct {
 var BasicStringAVSC string
 
 // AVSC returns the AVRO schema for the BasicString struct type
-func (s *BasicString) AVSC() string {
+func (s *BasicString) Schema() string {
 	return BasicStringAVSC
 }
 
@@ -26,5 +26,5 @@ func (s *BasicString) NamespaceID() NamespaceID {
 
 // SchemaID returns the schema id for the BasicString struct type
 func (s *BasicString) SchemaID() SchemaID {
-	return BasicStringID
+	return BasicStringSchemaID
 }

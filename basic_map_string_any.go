@@ -12,7 +12,7 @@ type BasicMapStringAny struct {
 }
 
 // AVSC returns the AVRO schema for the BasicString struct type
-func (s *BasicMapStringAny) AVSC() string {
+func (s *BasicMapStringAny) Schema() string {
 	return BasicMapStringAnyAVSC
 }
 
@@ -23,5 +23,5 @@ func (s *BasicMapStringAny) NamespaceID() NamespaceID {
 
 // SchemaID returns the schema id for the BasicInt struct type
 func (s *BasicMapStringAny) SchemaID() SchemaID {
-	return BasicMapStringAnyID
+	return BasicMapStringAnySchemaID
 }
