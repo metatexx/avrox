@@ -2,6 +2,7 @@
   "type": "record",
   "namespace": "basics",
   "name": "BasicInt",
+  "avrox": "1.2.1",
   "fields": [
     {
       "name": "Magic",

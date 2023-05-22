@@ -2,6 +2,7 @@
   "type": "record",
   "namespace": "basics",
   "name": "BasicMapStringAny",
+  "avrox": "1.4.1",
   "fields": [
     {
       "name": "Magic",

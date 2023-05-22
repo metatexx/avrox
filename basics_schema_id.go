@@ -6,20 +6,20 @@ package avrox
 
 const (
 	// BasicStringSchemaID is the id for the avro schema of struct BasicString
-	BasicStringSchemaID SchemaID = 1
+	BasicStringSchemaID SchemaID = 1<<8 + 1
 
 	// BasicIntSchemaID is the id for the avro schema of struct BasicInt
-	BasicIntSchemaID SchemaID = 2
+	BasicIntSchemaID SchemaID = 2<<8 + 1
 
 	// BasicByteSliceSchemaID is the id for the avro schema of struct BasicInt
-	BasicByteSliceSchemaID SchemaID = 3
+	BasicByteSliceSchemaID SchemaID = 3<<8 + 1
 
 	// BasicMapStringAnySchemaID is the id for the avro schema of struct BasicMapStringAny
-	BasicMapStringAnySchemaID SchemaID = 4
+	BasicMapStringAnySchemaID SchemaID = 4<<8 + 1
 
 	// BasicTimeSchemaID is the id for the avro schema of struct BasicTime
-	BasicTimeSchemaID SchemaID = 5
+	BasicTimeSchemaID SchemaID = 5<<8 + 1
 
 	// BasicDecimalSchemaID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.ficed)
-	BasicDecimalSchemaID SchemaID = 6
+	BasicDecimalSchemaID SchemaID = 6<<8 + 1
 )

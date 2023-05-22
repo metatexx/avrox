@@ -2,6 +2,8 @@
   "type": "record",
   "namespace": "basics",
   "name": "BasicDecimal",
+  "avrox": "1.6.1",
+  "doc": "BasicDecimal is the container type to store a *bigRat value into a single avro schema",
   "fields": [
     {
       "name": "Magic",

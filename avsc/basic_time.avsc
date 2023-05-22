@@ -2,6 +2,8 @@
   "type": "record",
   "namespace": "basics",
   "name": "BasicTime",
+  "avrox": "1.5.1",
+  "doc": "BasicTime is the container type to store a timestamp in a single avro schema",
   "fields": [
     {
       "name": "Magic",

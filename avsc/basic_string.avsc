@@ -2,6 +2,8 @@
   "type": "record",
   "namespace": "basics",
   "name": "BasicString",
+  "avrox": "1.1.1",
+  "doc": "BasicString is the container type to store a string in a single avro schema",
   "fields": [
     {
       "name": "Magic",

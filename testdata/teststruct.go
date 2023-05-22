@@ -7,7 +7,7 @@ import (
 
 import _ "embed"
 
-//go:generate avscgen -ns "basics" . TestStruct
+//go:generate avscgen -n "basics" . TestStruct
 //go:embed test_struct.avsc
 var TestStructAVSC string
 
