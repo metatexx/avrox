@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/golang/snappy v0.0.4
-	github.com/hamba/avro/v2 v2.15.1
+	github.com/hamba/avro/v2 v2.14.1
 	github.com/metatexx/mxx v0.0.0-20230816142705-69dfe69933bf
 	github.com/nats-io/nats.go v1.28.0
 	github.com/stretchr/testify v1.8.4
@@ -28,6 +28,3 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-// need to pin this to v2.14.1 because of "strange" errors with v2.15.1 (WIP)
-replace github.com/hamba/avro/v2 => github.com/hamba/avro/v2 v2.14.1
