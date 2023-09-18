@@ -23,7 +23,7 @@ type TestSubStruct struct {
 }
 
 type TestStruct struct {
-	Magic                  avrox.Magic
+	Magic                  avrox.Magic // 1.1.1
 	FieldString            string
 	FieldSubStruct         TestSubStruct
 	FieldPtrSubStruct      *TestPtrSubStruct

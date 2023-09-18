@@ -288,10 +288,16 @@ func TestMarshalAny(t *testing.T) {
 
 	schema, errParse := avro.Parse(testdata.TestStructAVSC)
 	assert.NoError(t, errParse)
+	if errParse != nil {
+		assert.FailNow(t, "future tests skipped")
+	}
 	assert.NotNil(t, schema)
 
 	data, err = avrox.MarshalAny(mt, schema, avrox.NamespacePrivate, avrox.SchemaUndefined, avrox.CompNone)
 	assert.NoError(t, err)
+	if err != nil {
+		assert.FailNow(t, "future tests skipped")
+	}
 
 	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
 	assert.NoError(t, err3)

@@ -2,6 +2,7 @@
   "type": "record",
   "namespace": "basics",
   "name": "TestStruct",
+  "avrox": "1.1.1",
   "fields": [
     {
       "name": "Magic",
@@ -69,37 +70,7 @@
       "name": "FieldPtrSubStringNil",
       "type": [
         "null",
-        {
-          "type": "record",
-          "name": "TestPtrSubStruct",
-          "fields": [
-            {
-              "name": "FieldSubString",
-              "type": "string"
-            },
-            {
-              "name": "FieldPtrInt8",
-              "type": [
-                "null",
-                "int"
-              ]
-            },
-            {
-              "name": "FieldPtrFloat64",
-              "type": [
-                "null",
-                "double"
-              ]
-            },
-            {
-              "name": "FieldPtrFloat32",
-              "type": [
-                "null",
-                "float"
-              ]
-            }
-          ]
-        }
+        "basics.TestPtrSubStruct"
       ]
     },
     {
@@ -107,37 +78,7 @@
       "type": {
         "items": [
           "null",
-          {
-            "type": "record",
-            "name": "TestPtrSubStruct",
-            "fields": [
-              {
-                "name": "FieldSubString",
-                "type": "string"
-              },
-              {
-                "name": "FieldPtrInt8",
-                "type": [
-                  "null",
-                  "int"
-                ]
-              },
-              {
-                "name": "FieldPtrFloat64",
-                "type": [
-                  "null",
-                  "double"
-                ]
-              },
-              {
-                "name": "FieldPtrFloat32",
-                "type": [
-                  "null",
-                  "float"
-                ]
-              }
-            ]
-          }
+          "basics.TestPtrSubStruct"
         ],
         "type": "array"
       }
