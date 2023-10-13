@@ -91,7 +91,7 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 	if errMarshall != nil {
 		return nil, errMarshall
 	}
-	return compressData(data, cID)
+	return CompressData(data, cID)
 }
 
 func UnmarshalBasic(src []byte) (any, error) {

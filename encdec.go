@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"compress/flate"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"github.com/golang/snappy"
 	"github.com/metatexx/mxx/wfl"
 )
 
-func compressData(data []byte, cID CompressionID) ([]byte, error) {
+func CompressData(data []byte, cID CompressionID) ([]byte, error) {
 	switch cID {
 	case CompNone:
 		return data, nil
@@ -48,17 +49,18 @@ func compressData(data []byte, cID CompressionID) ([]byte, error) {
 	}
 }
 
-func decompressData(data []byte, cID CompressionID) ([]byte, error) {
+func DecompressData(data []byte, cID CompressionID) ([]byte, error) {
 	//nolint:exhaustive // can't be exhaustive
+	var uncompressed []byte
 	switch cID {
 	case CompNone:
 		return data, nil
 	case CompSnappy:
 		dData, errDecode := snappy.Decode(nil, data[MagicLen:])
 		if errDecode != nil {
-			return nil, ErrDecompress
+			return nil, errors.Join(ErrDecompress, errDecode)
 		}
-		return append(data[:MagicLen], dData...), nil
+		uncompressed = dData
 	case CompFlate:
 		b := flate.NewReader(bytes.NewReader(data[MagicLen:]))
 		var dData bytes.Buffer
@@ -70,7 +72,7 @@ func decompressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("close flate error: %w", err)
 		}
-		return append(data[0:MagicLen], dData.Bytes()...), nil
+		uncompressed = dData.Bytes()
 	case CompGZip:
 		b, err := gzip.NewReader(bytes.NewReader(data[MagicLen:]))
 		if err != nil {
@@ -85,8 +87,20 @@ func decompressData(data []byte, cID CompressionID) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("close gzip error: %w", err)
 		}
-		return append(data[0:MagicLen], dData.Bytes()...), nil
+		uncompressed = dData.Bytes()
 	default:
 		return nil, ErrCompressionUnsupported
 	}
+	//return append(data[:MagicLen], uncompressed...), nil
+
+	// rewrite the magic header, so it does not say it is compressed anymore
+	ns, sc, _, errDecode := DecodeMagic(data[0:MagicLen])
+	if errDecode != nil {
+		return nil, errDecode
+	}
+	magic, errMagic := EncodeMagic(ns, sc, CompNone)
+	if errMagic != nil {
+		return nil, errMagic
+	}
+	return append(magic[:], uncompressed...), nil
 }

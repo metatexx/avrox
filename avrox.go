@@ -48,7 +48,7 @@ const (
 )
 
 var (
-	ErrLengthInvalid           = errors.New("data length should be exactly 4 bytes")
+	ErrLengthInvalid           = errors.New("data length should be exactly 8 bytes")
 	ErrNamespaceIDOutOfRange   = errors.New("namespace must be between 0 and 31")
 	ErrCompressionIDOutOfRange = errors.New("compression must be between 0 and 7")
 	ErrCompressionUnsupported  = errors.New("compression type is unsupported")
@@ -104,7 +104,7 @@ func MarshalAny(src any, schema avro.Schema, nID NamespaceID, sID SchemaID, cID 
 		return nil, errors.Join(ErrMarshallingFailed, wfl.ErrorWithSkip(errMarshal, 2))
 	}
 	//nolint:exhaustive // can't be exhaustive
-	return compressData(data, cID)
+	return CompressData(data, cID)
 
 }
 
@@ -118,9 +118,8 @@ func unmarshalHelper(data []byte) ([]byte, NamespaceID, SchemaID, error) {
 		return nil, 0, 0, errMagic
 	}
 
-	var err error
-	data, err = decompressData(data, cID)
-	return data, nID, sID, err
+	uncompressed, err := DecompressData(data, cID)
+	return uncompressed, nID, sID, err
 }
 
 func UnmarshalAny[T any](data []byte, schema avro.Schema, dst *T) (NamespaceID, SchemaID, error) {
