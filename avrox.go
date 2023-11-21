@@ -62,6 +62,7 @@ var (
 	ErrSchemaInvalid           = errors.New("schema is invalid")
 	ErrDecompress              = errors.New("can not decompress")
 	ErrDataFormatNotDetected   = errors.New("message format was not detected")
+	ErrNoData                  = errors.New("no data")
 	ErrNoBasicNamespace        = errors.New("no basic namespace")
 	ErrNoBasicSchema           = errors.New("no basic schema")
 	ErrNoBasicString           = errors.New("no basic string")

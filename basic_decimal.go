@@ -6,6 +6,7 @@ import (
 )
 
 // Implementation of BasicDecimal
+var _ Schemer = (*BasicDecimal)(nil)
 
 // BasicDecimal is the container type to store a *bigRat value into a single avro schema
 type BasicDecimal struct {
@@ -17,17 +18,17 @@ type BasicDecimal struct {
 //go:embed avsc/basic_decimal.avsc
 var BasicDecimalAVSC string
 
-// AVSC returns the AVRO schema for the BasicDecimal struct type
-func (_ *BasicDecimal) Schema() string {
+// Schema returns the AVRO schema for the BasicDecimal struct type
+func (BasicDecimal) Schema() string {
 	return BasicDecimalAVSC
 }
 
 // NamespaceID returns the namespace id for the BasicDecimal struct type
-func (_ *BasicDecimal) NamespaceID() NamespaceID {
+func (BasicDecimal) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
 // SchemaID returns the schema id for the BasicDecimal struct type
-func (_ *BasicDecimal) SchemaID() SchemaID {
+func (BasicDecimal) SchemaID() SchemaID {
 	return BasicTimeSchemaID
 }

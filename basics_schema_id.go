@@ -20,6 +20,6 @@ const (
 	// BasicTimeSchemaID is the id for the avro schema of struct BasicTime
 	BasicTimeSchemaID SchemaID = 5<<8 + 1
 
-	// BasicDecimalSchemaID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.ficed)
+	// BasicDecimalSchemaID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.fixed)
 	BasicDecimalSchemaID SchemaID = 6<<8 + 1
 )

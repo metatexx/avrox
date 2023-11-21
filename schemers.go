@@ -24,7 +24,7 @@ func Marshal(src Schemer, cID CompressionID, schema avro.Schema) ([]byte, error)
 	return MarshalAny(src, schema, src.NamespaceID(), src.SchemaID(), cID)
 }
 
-// UnmarshalUnion expects a slice with preallocated schemers and uses the magic
+// UnmarshalSchemer expects a slice with pre-allocated schemers and uses the magic
 // in the data to unmarshal the correct one. It will return the used schema as any
 // If no schema fits it will return an error
 func UnmarshalSchemer(src []byte, schemers ...Schemer) (any, error) {
@@ -62,11 +62,10 @@ func UnmarshalSchemer(src []byte, schemers ...Schemer) (any, error) {
 // If the schema is given, it will check that this matches to the Schemer info
 func Unmarshal(data []byte, dst Schemer, schema avro.Schema) error {
 	if len(data) == 0 {
-		dst = nil
-		return nil
+		return ErrNoData
 	}
 
-	if len(data) > 1 && data[0] == '{' {
+	if data[0] == '{' {
 		// TODO: JSON We need to get the namespace and schema from the json data
 		return json.Unmarshal(data, dst)
 	}

@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-// Implementation of BasicString
+// Implementation of BasicTime
+var _ Schemer = (*BasicTime)(nil)
 
 // BasicTime is the container type to store a timestamp in a single avro schema
 type BasicTime struct {
@@ -17,17 +18,17 @@ type BasicTime struct {
 //go:embed avsc/basic_time.avsc
 var BasicTimeAVSC string
 
-// AVSC returns the AVRO schema for the BasicTime struct type
-func (_ *BasicTime) Schema() string {
+// Schema returns the AVRO schema for the BasicTime struct type
+func (BasicTime) Schema() string {
 	return BasicTimeAVSC
 }
 
 // NamespaceID returns the namespace id for the BasicTime struct type
-func (_ *BasicTime) NamespaceID() NamespaceID {
+func (BasicTime) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
 // SchemaID returns the schema id for the BasicTime struct type
-func (_ *BasicTime) SchemaID() SchemaID {
+func (BasicTime) SchemaID() SchemaID {
 	return BasicTimeSchemaID
 }

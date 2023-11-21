@@ -3,6 +3,7 @@ package avrox
 import _ "embed"
 
 // Implementation of BasicString
+var _ Schemer = (*BasicString)(nil)
 
 // BasicString is the container type to store a string in a single avro schema
 type BasicString struct {
@@ -14,17 +15,17 @@ type BasicString struct {
 //go:embed avsc/basic_string.avsc
 var BasicStringAVSC string
 
-// AVSC returns the AVRO schema for the BasicString struct type
-func (_ *BasicString) Schema() string {
+// Schema returns the AVRO schema for the BasicString struct type
+func (BasicString) Schema() string {
 	return BasicStringAVSC
 }
 
 // NamespaceID returns the namespace id for the BasicString struct type
-func (_ *BasicString) NamespaceID() NamespaceID {
+func (BasicString) NamespaceID() NamespaceID {
 	return NamespaceBasic
 }
 
 // SchemaID returns the schema id for the BasicString struct type
-func (_ *BasicString) SchemaID() SchemaID {
+func (BasicString) SchemaID() SchemaID {
 	return BasicStringSchemaID
 }
