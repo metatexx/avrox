@@ -230,3 +230,71 @@ func TestRawDate_IsZero(t *testing.T) {
 		})
 	}
 }
+
+func TestRawDate_AddDate(t *testing.T) {
+	type fields struct {
+		Year  int
+		Month int8
+		Day   int8
+	}
+	type args struct {
+		years  int
+		months int
+		days   int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   rawdate.RawDate
+	}{
+		{"zero", fields{
+			Year:  2024,
+			Month: 2,
+			Day:   20,
+		}, args{
+			years:  0,
+			months: 0,
+			days:   0,
+		}, rawdate.MustNew(2024, 2, 20)},
+		{"one day", fields{
+			Year:  2024,
+			Month: 2,
+			Day:   20,
+		}, args{
+			years:  0,
+			months: 0,
+			days:   1,
+		}, rawdate.MustNew(2024, 2, 21)},
+		{"one month", fields{
+			Year:  2024,
+			Month: 2,
+			Day:   20,
+		}, args{
+			years:  0,
+			months: 1,
+			days:   0,
+		}, rawdate.MustNew(2024, 3, 20)},
+		{"evil date", fields{
+			Year:  2024,
+			Month: 2,
+			Day:   29,
+		}, args{
+			years:  1,
+			months: 0,
+			days:   0,
+		}, rawdate.MustNew(2025, 3, 1)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := rawdate.RawDate{
+				Year:  tt.fields.Year,
+				Month: tt.fields.Month,
+				Day:   tt.fields.Day,
+			}
+			if got := r.AddDate(tt.args.years, tt.args.months, tt.args.days); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("AddDate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

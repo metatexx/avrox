@@ -113,3 +113,13 @@ func (r RawDate) Format(format string) string {
 	tm := r.Time(time.UTC)
 	return tm.Format(format)
 }
+
+func (r RawDate) AddDate(years, months, days int) RawDate {
+	t := time.Date(int(r.Year), time.Month(r.Month), int(r.Day), 0, 0, 0, 0, time.UTC)
+	t = t.AddDate(years, months, days)
+	return RawDate{
+		Year:  t.Year(),
+		Month: int8(t.Month()),
+		Day:   int8(t.Day()),
+	}
+}
