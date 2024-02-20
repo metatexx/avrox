@@ -118,7 +118,7 @@
             "type": "int"
           }
         ],
-        "name": "RawDate",
+        "name": "RawDate.FieldRawDate",
         "type": "record"
       }
     }

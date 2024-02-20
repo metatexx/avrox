@@ -8,14 +8,6 @@ import (
 // Implementation of BasicTime
 var _ Schemer = (*BasicRawDate)(nil)
 
-/*
-type RawDate struct {
-	Year  int
-	Month int8
-	Day   int8
-}
-*/
-
 // BasicRawDate is the container type to store a timestamp in a single avro schema
 type BasicRawDate struct {
 	Magic [MagicLen]byte // 1.5.1

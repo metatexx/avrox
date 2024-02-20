@@ -30,7 +30,7 @@
             "type": "int"
           }
         ],
-        "name": "RawDate",
+        "name": "RawDate.Value",
         "type": "record"
       }
     }
