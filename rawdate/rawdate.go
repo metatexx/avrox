@@ -97,6 +97,10 @@ func (r RawDate) Compare(a RawDate) int {
 	return Compare(r, a)
 }
 
+func (r RawDate) IsZero() bool {
+	return r.Year == 1 && r.Month == 1 && r.Day == 1
+}
+
 func (r RawDate) String() string {
 	return fmt.Sprintf("%04d-%02d-%02d", r.Year, r.Month, r.Day)
 }

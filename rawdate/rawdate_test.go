@@ -202,3 +202,31 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func TestRawDate_IsZero(t *testing.T) {
+	type fields struct {
+		Year  int
+		Month int8
+		Day   int8
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{"zero", fields{Year: 1, Month: 1, Day: 1}, true},
+		{"not zero", fields{Year: 0, Month: 0, Day: 0}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := rawdate.RawDate{
+				Year:  tt.fields.Year,
+				Month: tt.fields.Month,
+				Day:   tt.fields.Day,
+			}
+			if got := r.IsZero(); got != tt.want {
+				t.Errorf("IsZero() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
