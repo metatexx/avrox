@@ -1,0 +1,38 @@
+{
+  "type": "record",
+  "namespace": "basics",
+  "name": "BasicRawDate",
+  "avrox": "1.5.1",
+  "doc": "BasicRawDate is the container type to store a timestamp in a single avro schema",
+  "fields": [
+    {
+      "name": "Magic",
+      "type": {
+        "name": "Magic_8",
+        "size": 8,
+        "type": "fixed"
+      }
+    },
+    {
+      "name": "Value",
+      "type": {
+        "fields": [
+          {
+            "name": "Year",
+            "type": "int"
+          },
+          {
+            "name": "Month",
+            "type": "int"
+          },
+          {
+            "name": "Day",
+            "type": "int"
+          }
+        ],
+        "name": "RawDate",
+        "type": "record"
+      }
+    }
+  ]
+}

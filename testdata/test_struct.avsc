@@ -100,6 +100,27 @@
     {
       "name": "FieldInt",
       "type": "int"
+    },
+    {
+      "name": "FieldRawDate",
+      "type": {
+        "fields": [
+          {
+            "name": "Year",
+            "type": "int"
+          },
+          {
+            "name": "Month",
+            "type": "int"
+          },
+          {
+            "name": "Day",
+            "type": "int"
+          }
+        ],
+        "name": "RawDate",
+        "type": "record"
+      }
     }
   ]
 }

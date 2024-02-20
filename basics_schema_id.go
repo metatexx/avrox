@@ -22,4 +22,7 @@ const (
 
 	// BasicDecimalSchemaID is the id for the avro schema of struct BasicDecimal (*big.Rat / decimal.fixed)
 	BasicDecimalSchemaID SchemaID = 6<<8 + 1
+
+	// BasicRawDateSchemaID is the id for the avro schema of struct BasicRawDate (rawdate.Rawdate)
+	BasicRawDateSchemaID SchemaID = 7<<8 + 1
 )

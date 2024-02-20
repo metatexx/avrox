@@ -3,6 +3,7 @@ package avrox_test
 import (
 	"errors"
 	"github.com/hamba/avro/v2"
+	"github.com/metatexx/avrox/rawdate"
 	"github.com/metatexx/avrox/testdata"
 	"math"
 	"math/big"
@@ -279,9 +280,10 @@ func TestMarshalAny(t *testing.T) {
 			FieldSubString: "Blub",
 			FieldPtrInt8:   nil,
 		}},
-		FieldString: "Foo",
-		FieldTime:   avrox.AvroTime(time.Now()),
-		FieldDate:   avrox.AvroDate(time.Now()),
+		FieldString:  "Foo",
+		FieldTime:    avrox.AvroTime(time.Now()),
+		FieldDate:    avrox.AvroDate(time.Now()),
+		FieldRawDate: rawdate.MustNew(2024, 02, 20),
 	}
 	data, err := avrox.MarshalAny(mt, nil, avrox.NamespacePrivate, avrox.SchemaUndefined, avrox.CompNone)
 	assert.True(t, errors.Is(err, avrox.ErrSchemaNil))

@@ -3,6 +3,7 @@ package avrox
 import (
 	"errors"
 	"github.com/hamba/avro/v2"
+	"github.com/metatexx/avrox/rawdate"
 	"math/big"
 	"time"
 )
@@ -85,6 +86,18 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 			Value: v,
 		}
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicDecimalAVSC), kind)
+	case rawdate.RawDate:
+		kind := &BasicRawDate{
+			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
+			Value: v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
+	case *rawdate.RawDate:
+		kind := &BasicRawDate{
+			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
+			Value: *v,
+		}
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
 	default:
 		return nil, errors.New("unsupported type")
 	}
@@ -161,6 +174,16 @@ func UnmarshalBasic(src []byte) (any, error) {
 		}
 		if nID != NamespaceBasic && sID != BasicTimeSchemaID {
 			return nil, ErrNoBasicTime
+		}
+		return kind.Value, nil
+	case BasicRawDateSchemaID:
+		kind := &BasicRawDate{}
+		nID, sID, errUnmarshalAny = UnmarshalAny(src, avro.MustParse(BasicRawDateAVSC), kind)
+		if errUnmarshalAny != nil {
+			return nil, errUnmarshalAny
+		}
+		if nID != NamespaceBasic && sID != BasicRawDateSchemaID {
+			return nil, ErrNoBasicRawDate
 		}
 		return kind.Value, nil
 	case BasicDecimalSchemaID:

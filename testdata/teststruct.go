@@ -2,6 +2,7 @@ package testdata
 
 import (
 	"github.com/metatexx/avrox"
+	"github.com/metatexx/avrox/rawdate"
 	"time"
 )
 
@@ -32,4 +33,5 @@ type TestStruct struct {
 	FieldTime              time.Time
 	FieldDate              time.Time `avsc:"type:int,logicalType:date"`
 	FieldInt               int
+	FieldRawDate           rawdate.RawDate
 }
