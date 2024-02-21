@@ -88,16 +88,16 @@ func MarshalBasic(src any, cID CompressionID) ([]byte, error) {
 		data, errMarshall = avro.Marshal(avro.MustParse(BasicDecimalAVSC), kind)
 	case rawdate.RawDate:
 		kind := &BasicRawDate{
-			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
+			Magic: MustEncodeBasicMagic(BasicRawDateSchemaID, cID),
 			Value: v,
 		}
-		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicRawDateAVSC), kind)
 	case *rawdate.RawDate:
 		kind := &BasicRawDate{
-			Magic: MustEncodeBasicMagic(BasicTimeSchemaID, cID),
+			Magic: MustEncodeBasicMagic(BasicRawDateSchemaID, cID),
 			Value: *v,
 		}
-		data, errMarshall = avro.Marshal(avro.MustParse(BasicTimeAVSC), kind)
+		data, errMarshall = avro.Marshal(avro.MustParse(BasicRawDateAVSC), kind)
 	default:
 		return nil, errors.New("unsupported type")
 	}
@@ -192,8 +192,8 @@ func UnmarshalBasic(src []byte) (any, error) {
 		if errUnmarshalAny != nil {
 			return nil, errUnmarshalAny
 		}
-		if nID != NamespaceBasic && sID != BasicTimeSchemaID {
-			return nil, ErrNoBasicTime
+		if nID != NamespaceBasic && sID != BasicDecimalSchemaID {
+			return nil, ErrNoBasicDecimal
 		}
 		return kind.Value, nil
 	default:

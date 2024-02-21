@@ -209,7 +209,7 @@ func TestMarshalBasicTime(t *testing.T) {
 	assert.Equal(t, value, result)
 }
 
-func TestMarshalDecimalTime(t *testing.T) {
+func TestMarshalBasicDecimal(t *testing.T) {
 	value, _ := (&big.Rat{}).SetString("1/10")
 	data, err := avrox.MarshalBasic(value, avrox.CompNone)
 	assert.NoError(t, err)
@@ -223,6 +223,40 @@ func TestMarshalDecimalTime(t *testing.T) {
 	result, err4 := avrox.UnmarshalBasic(data)
 	assert.NoError(t, err4)
 	assert.Equal(t, value, result)
+}
+
+func TestMarshalBasicRawDate(t *testing.T) {
+	value, _ := rawdate.New(2023, 2, 20)
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicRawDateSchemaID, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	result, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.Equal(t, value, result)
+	assert.True(t, result.(rawdate.RawDate).String() == "2023-02-20")
+}
+
+func TestMarshalBasicNulRawDate(t *testing.T) {
+	value := rawdate.RawDate{}
+	data, err := avrox.MarshalBasic(value, avrox.CompNone)
+	assert.NoError(t, err)
+
+	n, s, c, err3 := avrox.DecodeMagic(data[:avrox.MagicLen])
+	assert.NoError(t, err3)
+	assert.Equal(t, avrox.NamespaceBasic, n)
+	assert.Equal(t, avrox.BasicRawDateSchemaID, s)
+	assert.Equal(t, avrox.CompNone, c)
+
+	result, err4 := avrox.UnmarshalBasic(data)
+	assert.NoError(t, err4)
+	assert.True(t, result.(rawdate.RawDate).IsZero())
+	assert.True(t, result.(rawdate.RawDate).String() == "0001-01-01")
 }
 
 func TestMarshalMapStringAnySnappy(t *testing.T) {

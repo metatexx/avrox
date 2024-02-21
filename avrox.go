@@ -71,6 +71,7 @@ var (
 	ErrNoBasicMapStringAny     = errors.New("no basic map string any")
 	ErrNoBasicTime             = errors.New("no basic time")
 	ErrNoBasicRawDate          = errors.New("no basic rawdate")
+	ErrNoBasicDecimal          = errors.New("no basic decimal")
 	ErrWrongNamespace          = errors.New("namespace from schemer does not fit the magic entry")
 	ErrWrongSchema             = errors.New("schema from schemer does not fit the magic entry")
 	ErrNotAvroX                = errors.New("data is not avrox")
