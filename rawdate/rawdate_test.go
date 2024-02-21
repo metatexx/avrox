@@ -37,7 +37,7 @@ func TestRawDate_Compare(t1 *testing.T) {
 	}
 	tests := []struct {
 		name string
-		t    rawdate.RawDate
+		base rawdate.RawDate
 		args args
 		want int
 	}{
@@ -47,7 +47,7 @@ func TestRawDate_Compare(t1 *testing.T) {
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
-			if got := tt.t.Compare(tt.args.a); got != tt.want {
+			if got := tt.base.Compare(tt.args.a); got != tt.want {
 				t1.Errorf("Compare() = %v, want %v", got, tt.want)
 			}
 		})
@@ -61,7 +61,7 @@ func TestRawDate_Format(t1 *testing.T) {
 	}
 	tests := []struct {
 		name string
-		t    rawdate.RawDate
+		base rawdate.RawDate
 		args args
 		want string
 	}{
@@ -70,7 +70,7 @@ func TestRawDate_Format(t1 *testing.T) {
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
 
-			if got := tt.t.Format(tt.args.format); got != tt.want {
+			if got := tt.base.Format(tt.args.format); got != tt.want {
 				t1.Errorf("Format() = %v, want %v", got, tt.want)
 			}
 		})
@@ -81,7 +81,7 @@ func TestRawDate_String(t1 *testing.T) {
 
 	tests := []struct {
 		name string
-		t    rawdate.RawDate
+		base rawdate.RawDate
 		want string
 	}{
 		{"easy", rawdate.MustNew(2024, 2, 20), "2024-02-20"},
@@ -91,7 +91,7 @@ func TestRawDate_String(t1 *testing.T) {
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
 
-			if got := tt.t.String(); got != tt.want {
+			if got := tt.base.String(); got != tt.want {
 				t1.Errorf("String() = %v, want %v", got, tt.want)
 			}
 		})
@@ -105,20 +105,20 @@ func TestRawDate_Time(t1 *testing.T) {
 	}
 	tests := []struct {
 		name string
-		t    rawdate.RawDate
+		base rawdate.RawDate
 		args args
 		want time.Time
 	}{
 		{
 			"easy",
-			rawdate.MustNew(now.Year(), int(now.Month()), now.Day()),
+			rawdate.MustNew(now.Year(), now.Month(), now.Day()),
 			args{time.Local},
 			time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)},
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
 
-			if got := tt.t.Time(tt.args.location); !reflect.DeepEqual(got, tt.want) {
+			if got := tt.base.Time(tt.args.location); !reflect.DeepEqual(got, tt.want) {
 				t1.Errorf("Time() = %v, want %v", got, tt.want)
 			}
 		})
@@ -135,7 +135,7 @@ func TestFromTime(t *testing.T) {
 		args args
 		want rawdate.RawDate
 	}{
-		{"easy", args{now}, rawdate.MustNew(now.Year(), int(now.Month()), now.Day())},
+		{"easy", args{now}, rawdate.MustNew(now.Year(), now.Month(), now.Day())},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -177,7 +177,7 @@ func TestParse(t *testing.T) {
 func TestNew(t *testing.T) {
 	type args struct {
 		y int
-		m int
+		m time.Month
 		d int
 	}
 	tests := []struct {
@@ -214,15 +214,15 @@ func TestRawDate_IsZero(t *testing.T) {
 		fields fields
 		want   bool
 	}{
-		{"zero", fields{Year: 1, Month: 1, Day: 1}, true},
-		{"not zero", fields{Year: 0, Month: 0, Day: 0}, false},
+		{"zero", fields{Year: 0, Month: 0, Day: 0}, true},
+		{"not zero", fields{Year: 1, Month: 1, Day: 1}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := rawdate.RawDate{
-				Year:  tt.fields.Year,
-				Month: tt.fields.Month,
-				Day:   tt.fields.Day,
+				Year0:  tt.fields.Year,
+				Month0: tt.fields.Month,
+				Day0:   tt.fields.Day,
 			}
 			if got := r.IsZero(); got != tt.want {
 				t.Errorf("IsZero() = %v, want %v", got, tt.want)
@@ -232,68 +232,64 @@ func TestRawDate_IsZero(t *testing.T) {
 }
 
 func TestRawDate_AddDate(t *testing.T) {
-	type fields struct {
-		Year  int
-		Month int8
-		Day   int8
-	}
 	type args struct {
 		years  int
 		months int
 		days   int
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   rawdate.RawDate
+		name string
+		base rawdate.RawDate
+		args args
+		want rawdate.RawDate
 	}{
-		{"zero", fields{
-			Year:  2024,
-			Month: 2,
-			Day:   20,
-		}, args{
-			years:  0,
-			months: 0,
-			days:   0,
-		}, rawdate.MustNew(2024, 2, 20)},
-		{"one day", fields{
-			Year:  2024,
-			Month: 2,
-			Day:   20,
-		}, args{
-			years:  0,
-			months: 0,
-			days:   1,
-		}, rawdate.MustNew(2024, 2, 21)},
-		{"one month", fields{
-			Year:  2024,
-			Month: 2,
-			Day:   20,
-		}, args{
-			years:  0,
-			months: 1,
-			days:   0,
-		}, rawdate.MustNew(2024, 3, 20)},
-		{"evil date", fields{
-			Year:  2024,
-			Month: 2,
-			Day:   29,
-		}, args{
-			years:  1,
-			months: 0,
-			days:   0,
-		}, rawdate.MustNew(2025, 3, 1)},
+		{"zero", rawdate.MustNew(2024, 2, 20),
+			args{
+				years:  0,
+				months: 0,
+				days:   0,
+			}, rawdate.MustNew(2024, 2, 20)},
+		{"one day", rawdate.MustNew(2024, 2, 20),
+			args{
+				years:  0,
+				months: 0,
+				days:   1,
+			}, rawdate.MustNew(2024, 2, 21)},
+		{"one month", rawdate.MustNew(2024, 2, 20),
+			args{
+				years:  0,
+				months: 1,
+				days:   0,
+			}, rawdate.MustNew(2024, 3, 20)},
+		{"evil date", rawdate.MustNew(2024, 2, 29),
+			args{
+				years:  1,
+				months: 0,
+				days:   0,
+			}, rawdate.MustNew(2025, 3, 1)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := rawdate.RawDate{
-				Year:  tt.fields.Year,
-				Month: tt.fields.Month,
-				Day:   tt.fields.Day,
-			}
-			if got := r.AddDate(tt.args.years, tt.args.months, tt.args.days); !reflect.DeepEqual(got, tt.want) {
+			if got := tt.base.AddDate(tt.args.years, tt.args.months, tt.args.days); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("AddDate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRawDate_Weekday(t *testing.T) {
+	tests := []struct {
+		name string
+		base rawdate.RawDate
+		want time.Weekday
+	}{
+		{"monday", rawdate.MustNew(2024, 2, 19), time.Monday},
+		{"sunday", rawdate.MustNew(2024, 2, 18), time.Sunday},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.Weekday(); got != tt.want {
+				t.Errorf("Weekday() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -6,83 +6,76 @@ import (
 	"time"
 )
 
-var Zero = RawDate{1, 1, 1}
+var Zero = RawDate{0, 0, 0}
 
 const ISODate = time.DateOnly
 
 type RawDate struct {
-	Year  int
-	Month int8
-	Day   int8
+	Year0  int
+	Month0 int8
+	Day0   int8
 }
 
-func New(y, m, d int) (RawDate, error) {
-	r := RawDate{Year: y, Month: int8(m), Day: int8(d)}
+func New(y int, m time.Month, d int) (RawDate, error) {
+	r := RawDate{Year0: y - 1, Month0: int8(m) - 1, Day0: int8(d) - 1}
 	if !r.IsValid() {
 		return Zero, errors.New("not a date")
 	}
 	return r, nil
 }
 
-func MustNew(y, m, d int) RawDate {
-	r := RawDate{Year: y, Month: int8(m), Day: int8(d)}
+func MustNew(y int, m time.Month, d int) RawDate {
+	r := RawDate{Year0: y - 1, Month0: int8(m) - 1, Day0: int8(d) - 1}
 	if !r.IsValid() {
 		panic("not a date")
 	}
 	return r
 }
 
+func (r RawDate) Day() int {
+	return int(r.Day0) + 1
+}
+
+func (r RawDate) Month() time.Month {
+	return time.Month(r.Month0 + 1)
+}
+
+func (r RawDate) Year() int {
+	return r.Year0 + 1
+}
+
+func (r RawDate) Weekday() time.Weekday {
+	t := time.Date(r.Year(), r.Month(), r.Day(), 0, 0, 0, 0, time.UTC)
+	return t.Weekday()
+}
+
 func (r RawDate) IsValid() bool {
-	t := time.Date(r.Year, time.Month(r.Month), int(r.Day), 0, 0, 0, 0, time.UTC)
-	if t.Day() != int(r.Day) || t.Month() != time.Month(r.Month) || t.Year() != r.Year {
+	t := time.Date(r.Year0+1, time.Month(r.Month0)+1, int(r.Day0)+1, 0, 0, 0, 0, time.UTC)
+	if t.Day() != r.Day() || t.Month() != r.Month() || t.Year() != r.Year() {
 		return false
 	}
 	return true
 }
 
 func FromTime(t time.Time) RawDate {
-	return RawDate{Year: t.Year(), Month: int8(t.Month()), Day: int8(t.Day())}
+	return RawDate{Year0: t.Year() - 1, Month0: int8(t.Month() - 1), Day0: int8(t.Day() - 1)}
 }
 
 func Parse(layout, s string) (RawDate, error) {
-	/*
-		parts := strings.Split(s, "-")
-		if len(parts) != 3 {
-			return Zero, errors.New("not a date")
-		}
-		var y, m, d int
-		var err error
-		y, err = strconv.Atoi(parts[0])
-		if err != nil {
-			return Zero, errors.New("not a date")
-		}
-		m, err = strconv.Atoi(parts[1])
-		if err != nil || m < 1 || m > 12 {
-			return Zero, errors.New("not a date")
-		}
-		d, err = strconv.Atoi(parts[2])
-		if err != nil {
-			return Zero, errors.New("not a date")
-		}
-		t := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
-		if t.Day() != d || t.Month()!=time.Month(m) || t.Year() !=y {
-			return Zero, errors.New("not a date")
-		}
-	*/
 	t, err := time.Parse(layout, s)
 	if err != nil {
 		return Zero, err
 	}
-	return RawDate{t.Year(), int8(t.Month()), int8(t.Day())}, nil
+	return RawDate{t.Year() - 1, int8(t.Month() - 1), int8(t.Day() - 1)}, nil
 }
 
 func Compare(a, b RawDate) int {
-	s := a.Year - b.Year
+	s := a.Year0 - b.Year0
 	if s == 0 {
-		s = int(a.Month - b.Month)
+		s = int(a.Month0 - b.Month0)
 	}
 	if s == 0 {
-		s = int(a.Day - b.Day)
+		s = int(a.Day0 - b.Day0)
 	}
 	if s > 0 {
 		return 1
@@ -98,15 +91,15 @@ func (r RawDate) Compare(a RawDate) int {
 }
 
 func (r RawDate) IsZero() bool {
-	return r.Year == 1 && r.Month == 1 && r.Day == 1
+	return r.Year0 == 0 && r.Month0 == 0 && r.Day0 == 0
 }
 
 func (r RawDate) String() string {
-	return fmt.Sprintf("%04d-%02d-%02d", r.Year, r.Month, r.Day)
+	return fmt.Sprintf("%04d-%02d-%02d", r.Year0+1, r.Month0+1, r.Day0+1)
 }
 
 func (r RawDate) Time(location *time.Location) time.Time {
-	return time.Date(int(r.Year), time.Month(r.Month), int(r.Day), 0, 0, 0, 0, location)
+	return time.Date(r.Year(), r.Month(), r.Day(), 0, 0, 0, 0, location)
 }
 
 func (r RawDate) Format(format string) string {
@@ -115,11 +108,6 @@ func (r RawDate) Format(format string) string {
 }
 
 func (r RawDate) AddDate(years, months, days int) RawDate {
-	t := time.Date(int(r.Year), time.Month(r.Month), int(r.Day), 0, 0, 0, 0, time.UTC)
-	t = t.AddDate(years, months, days)
-	return RawDate{
-		Year:  t.Year(),
-		Month: int8(t.Month()),
-		Day:   int8(t.Day()),
-	}
+	t := r.Time(time.UTC).AddDate(years, months, days)
+	return MustNew(t.Year(), t.Month(), t.Day())
 }

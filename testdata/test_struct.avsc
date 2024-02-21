@@ -106,15 +106,15 @@
       "type": {
         "fields": [
           {
-            "name": "Year",
+            "name": "Year0",
             "type": "int"
           },
           {
-            "name": "Month",
+            "name": "Month0",
             "type": "int"
           },
           {
-            "name": "Day",
+            "name": "Day0",
             "type": "int"
           }
         ],
