@@ -48,6 +48,12 @@ func MustNew(y int, m time.Month, d int) RawDate {
 	return r
 }
 
+// Now creates a new RawDate with the current date (in local time)
+func Now() RawDate {
+	t := time.Now()
+	return RawDate{Year0: t.Year() - 1, Month0: int8(t.Month() - 1), Day0: int8(t.Day() - 1)}
+}
+
 // Day returns the day of the month for the RawDate.
 func (r RawDate) Day() int {
 	return int(r.Day0) + 1
