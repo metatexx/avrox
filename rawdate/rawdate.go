@@ -162,3 +162,35 @@ func (r RawDate) MonthEnd() RawDate {
 	daysInMonth := time.Date(r.Year(), r.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
 	return MustNew(r.Year(), r.Month(), daysInMonth)
 }
+
+// NextWeekday returns the next date that falls on the given weekday.
+// If orToday is true and the given weekday is today, it returns the current date.
+func (r RawDate) NextWeekday(weekday time.Weekday, orToday bool) RawDate {
+	if orToday && r.Weekday() == weekday {
+		return r
+	}
+
+	difference := int(weekday - r.Weekday())
+	if difference <= 0 {
+		difference += 7
+	}
+
+	return r.AddDate(0, 0, difference)
+}
+
+// PreviousWeekday returns the previous date that falls on the given weekday.
+// If orToday is true and the given weekday is today, it returns the current date.
+func (r RawDate) PreviousWeekday(weekday time.Weekday, orToday bool) RawDate {
+	if orToday && r.Weekday() == weekday {
+		return r
+	}
+
+	var difference int
+	if r.Weekday() > weekday {
+		difference = int(r.Weekday() - weekday)
+	} else {
+		difference = int(r.Weekday() - weekday + 7)
+	}
+
+	return r.AddDate(0, 0, -difference)
+}
