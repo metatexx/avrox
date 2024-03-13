@@ -151,3 +151,14 @@ func (r RawDate) AddDate(years, months, days int) RawDate {
 	t := r.Time(time.UTC).AddDate(years, months, days)
 	return MustNew(t.Year(), t.Month(), t.Day())
 }
+
+// MonthStart returns a new RawDate that represents the first day of the month for the given RawDate.
+func (r RawDate) MonthStart() RawDate {
+	return MustNew(r.Year(), r.Month(), 1)
+}
+
+// MonthEnd returns a new RawDate that represents the last day of the month for the given RawDate.
+func (r RawDate) MonthEnd() RawDate {
+	daysInMonth := time.Date(r.Year(), r.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	return MustNew(r.Year(), r.Month(), daysInMonth)
+}

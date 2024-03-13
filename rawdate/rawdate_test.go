@@ -294,3 +294,47 @@ func TestRawDate_Weekday(t *testing.T) {
 		})
 	}
 }
+
+func TestRawDate_MonthStart(t *testing.T) {
+	tests := []struct {
+		name string
+		base rawdate.RawDate
+		want rawdate.RawDate
+	}{
+		{"march 2024", rawdate.MustNew(2024, time.March, 11), rawdate.MustNew(2024, time.March, 1)},
+		{"february 2024", rawdate.MustNew(2024, time.February, 13), rawdate.MustNew(2024, time.February, 1)},
+		{"february 2023", rawdate.MustNew(2023, time.February, 15), rawdate.MustNew(2023, time.February, 1)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.MonthStart(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MonthStart() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRawDate_MonthEnd(t *testing.T) {
+	tests := []struct {
+		name   string
+		fields rawdate.RawDate
+		want   rawdate.RawDate
+	}{
+		{"march 2024", rawdate.MustNew(2024, time.March, 11), rawdate.MustNew(2024, time.March, 31)},
+		{"april 2024", rawdate.MustNew(2024, time.April, 11), rawdate.MustNew(2024, time.April, 30)},
+		{"february 2024", rawdate.MustNew(2024, time.February, 13), rawdate.MustNew(2024, time.February, 29)},
+		{"february 2023", rawdate.MustNew(2023, time.February, 15), rawdate.MustNew(2023, time.February, 28)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := rawdate.RawDate{
+				Year0:  tt.fields.Year0,
+				Month0: tt.fields.Month0,
+				Day0:   tt.fields.Day0,
+			}
+			if got := r.MonthEnd(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MonthEnd() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
