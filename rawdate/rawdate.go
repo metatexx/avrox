@@ -166,11 +166,12 @@ func (r RawDate) MonthEnd() RawDate {
 // NextWeekday returns the next date that falls on the given weekday.
 // If orToday is true and the given weekday is today, it returns the current date.
 func (r RawDate) NextWeekday(weekday time.Weekday, orToday bool) RawDate {
-	if orToday && r.Weekday() == weekday {
+	wd := r.Weekday()
+	if orToday && wd == weekday {
 		return r
 	}
 
-	difference := int(weekday - r.Weekday())
+	difference := int(weekday - wd)
 	if difference <= 0 {
 		difference += 7
 	}
@@ -181,15 +182,16 @@ func (r RawDate) NextWeekday(weekday time.Weekday, orToday bool) RawDate {
 // PreviousWeekday returns the previous date that falls on the given weekday.
 // If orToday is true and the given weekday is today, it returns the current date.
 func (r RawDate) PreviousWeekday(weekday time.Weekday, orToday bool) RawDate {
-	if orToday && r.Weekday() == weekday {
+	wd := r.Weekday()
+	if orToday && wd == weekday {
 		return r
 	}
 
 	var difference int
 	if r.Weekday() > weekday {
-		difference = int(r.Weekday() - weekday)
+		difference = int(wd - weekday)
 	} else {
-		difference = int(r.Weekday() - weekday + 7)
+		difference = int(wd - weekday + 7)
 	}
 
 	return r.AddDate(0, 0, -difference)
