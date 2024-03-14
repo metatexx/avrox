@@ -294,3 +294,97 @@ func TestRawDate_Weekday(t *testing.T) {
 		})
 	}
 }
+
+func TestRawDate_MonthStart(t *testing.T) {
+	tests := []struct {
+		name string
+		base rawdate.RawDate
+		want rawdate.RawDate
+	}{
+		{"march 2024", rawdate.MustNew(2024, time.March, 11), rawdate.MustNew(2024, time.March, 1)},
+		{"february 2024", rawdate.MustNew(2024, time.February, 13), rawdate.MustNew(2024, time.February, 1)},
+		{"february 2023", rawdate.MustNew(2023, time.February, 15), rawdate.MustNew(2023, time.February, 1)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.MonthStart(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MonthStart() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRawDate_MonthEnd(t *testing.T) {
+	tests := []struct {
+		name string
+		base rawdate.RawDate
+		want rawdate.RawDate
+	}{
+		{"march 2024", rawdate.MustNew(2024, time.March, 11), rawdate.MustNew(2024, time.March, 31)},
+		{"april 2024", rawdate.MustNew(2024, time.April, 11), rawdate.MustNew(2024, time.April, 30)},
+		{"february 2024", rawdate.MustNew(2024, time.February, 13), rawdate.MustNew(2024, time.February, 29)},
+		{"february 2023", rawdate.MustNew(2023, time.February, 15), rawdate.MustNew(2023, time.February, 28)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.MonthEnd(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MonthEnd() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRawDate_NextWeekday(t *testing.T) {
+	tests := []struct {
+		name    string
+		base    rawdate.RawDate
+		weekday time.Weekday
+		orToday bool
+		want    rawdate.RawDate
+	}{
+		{"1. march 2024 false", rawdate.MustNew(2024, time.March, 1), time.Monday, false, rawdate.MustNew(2024, time.March, 4)},
+		{"1. march 2024 false", rawdate.MustNew(2024, time.March, 1), time.Friday, false, rawdate.MustNew(2024, time.March, 8)},
+		{"1. march 2024 true", rawdate.MustNew(2024, time.March, 1), time.Friday, true, rawdate.MustNew(2024, time.March, 1)},
+		{"15. april 2024 true", rawdate.MustNew(2024, time.April, 15), time.Sunday, true, rawdate.MustNew(2024, time.April, 21)},
+		{"15. april 2024 false", rawdate.MustNew(2024, time.April, 15), time.Sunday, false, rawdate.MustNew(2024, time.April, 21)},
+		{"16. april 2024 true", rawdate.MustNew(2024, time.April, 15), time.Thursday, true, rawdate.MustNew(2024, time.April, 18)},
+		{"16. april 2024 false", rawdate.MustNew(2024, time.April, 15), time.Thursday, false, rawdate.MustNew(2024, time.April, 18)},
+		{"21. april 2024 true", rawdate.MustNew(2024, time.April, 21), time.Friday, true, rawdate.MustNew(2024, time.April, 26)},
+		{"21. april 2024 false", rawdate.MustNew(2024, time.April, 21), time.Friday, false, rawdate.MustNew(2024, time.April, 26)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.NextWeekday(tt.weekday, tt.orToday); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NextWeekday() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRawDate_PreviousWeekday(t *testing.T) {
+	tests := []struct {
+		name    string
+		base    rawdate.RawDate
+		weekday time.Weekday
+		orToday bool
+		want    rawdate.RawDate
+	}{
+		{"1. march 2024 false", rawdate.MustNew(2024, time.March, 1), time.Monday, false, rawdate.MustNew(2024, time.February, 26)},
+		{"1. march 2023 false", rawdate.MustNew(2023, time.March, 1), time.Friday, false, rawdate.MustNew(2023, time.February, 24)},
+		{"1. march 2024 true", rawdate.MustNew(2024, time.March, 1), time.Friday, true, rawdate.MustNew(2024, time.March, 1)},
+		{"1. march 2024 true", rawdate.MustNew(2024, time.March, 1), time.Friday, false, rawdate.MustNew(2024, time.February, 23)},
+		{"15. april 2024 true", rawdate.MustNew(2024, time.April, 15), time.Sunday, true, rawdate.MustNew(2024, time.April, 14)},
+		{"15. april 2024 false", rawdate.MustNew(2024, time.April, 15), time.Sunday, false, rawdate.MustNew(2024, time.April, 14)},
+		{"16. april 2024 true", rawdate.MustNew(2024, time.April, 15), time.Thursday, true, rawdate.MustNew(2024, time.April, 11)},
+		{"16. april 2024 false", rawdate.MustNew(2024, time.April, 15), time.Thursday, false, rawdate.MustNew(2024, time.April, 11)},
+		{"21. april 2024 true", rawdate.MustNew(2024, time.April, 21), time.Sunday, true, rawdate.MustNew(2024, time.April, 21)},
+		{"21. april 2024 false", rawdate.MustNew(2024, time.April, 21), time.Sunday, false, rawdate.MustNew(2024, time.April, 14)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.base.PreviousWeekday(tt.weekday, tt.orToday); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("PreviousWeekday() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
