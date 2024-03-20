@@ -184,7 +184,52 @@ func TestDate_Value(t *testing.T) {
 	d := rawdate.RawDate{Year0: 1991 - 1, Month0: int8(time.April - 1), Day0: 26 - 1}
 	v, err := d.Value()
 	assert.Nil(err)
-	expected := time.Date(1991, time.April, 26, 0, 0, 0, 0, time.Local)
+	expected := "1991-04-26"
+	assert.Equal(expected, v)
+}
+
+func TestDate_ValueZero(t *testing.T) {
+	t.Parallel()
+	assert := testifyrequire.New(t)
+
+	var d rawdate.RawDate
+	v, err := d.Value()
+	assert.Nil(err)
+	expected := "0000-01-01"
+	assert.Equal(expected, v)
+}
+
+func TestDate_ValueMSSQL(t *testing.T) {
+	//t.Parallel() // This should not run parallel
+	assert := testifyrequire.New(t)
+	d := rawdate.RawDate{Year0: 1991 - 1, Month0: int8(time.April - 1), Day0: 26 - 1}
+
+	// we change the global format variable
+	oldFormat := rawdate.SQLDateFormat
+	rawdate.SQLDateFormat = rawdate.MSSQLDateFmt
+	v, err := d.Value()
+	// we set it back to the old format (watch out for parallel use!)
+	rawdate.SQLDateFormat = oldFormat
+
+	assert.Nil(err)
+	expected := "19910426"
+	assert.Equal(expected, v)
+}
+
+func TestDate_ValueZeroMSSQL(t *testing.T) {
+	//t.Parallel() // This should not run parallel
+	assert := testifyrequire.New(t)
+	var d rawdate.RawDate
+
+	// we change the global zero variable
+	oldZero := rawdate.SQLZeroValue
+	rawdate.SQLZeroValue = rawdate.MSSQLZeroDate
+	v, err := d.Value()
+	// we set it back to the old format
+	rawdate.SQLZeroValue = oldZero
+
+	assert.Nil(err)
+	expected := "19000101"
 	assert.Equal(expected, v)
 }
 

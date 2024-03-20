@@ -48,8 +48,8 @@ func MustNew(y int, m time.Month, d int) RawDate {
 	return r
 }
 
-// Now creates a new RawDate with the current date (in local time)
-func Now() RawDate {
+// Today creates a new RawDate with the current date (in local time)
+func Today() RawDate {
 	t := time.Now()
 	return RawDate{Year0: t.Year() - 1, Month0: int8(t.Month() - 1), Day0: int8(t.Day() - 1)}
 }
@@ -122,6 +122,16 @@ func Compare(a, b RawDate) int {
 // Returns 1 if r > a, -1 if r < a, and 0 if r == a.
 func (r RawDate) Compare(a RawDate) int {
 	return Compare(r, a)
+}
+
+// After reports whether the RawDate a is after RawDate b.
+func (a RawDate) After(b RawDate) bool {
+	return Compare(a, b) > 0
+}
+
+// Before reports whether the RawDate a is before RawDate b.
+func (a RawDate) Before(b RawDate) bool {
+	return Compare(a, b) < 0
 }
 
 // IsZero checks if the RawDate is a zero date.
