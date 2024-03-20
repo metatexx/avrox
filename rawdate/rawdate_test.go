@@ -54,6 +54,29 @@ func TestRawDate_Compare(t1 *testing.T) {
 	}
 }
 
+func TestRawDate_Equal(t1 *testing.T) {
+	type args struct {
+		a rawdate.RawDate
+	}
+	tests := []struct {
+		name string
+		base rawdate.RawDate
+		args args
+		want bool
+	}{
+		{"equal", rawdate.MustNew(2024, 2, 20), args{rawdate.MustNew(2024, 2, 20)}, true},
+		{"before", rawdate.MustNew(2024, 2, 20), args{rawdate.MustNew(2024, 2, 19)}, false},
+		{"after", rawdate.MustNew(2024, 2, 20), args{rawdate.MustNew(2024, 2, 21)}, false},
+	}
+	for _, tt := range tests {
+		t1.Run(tt.name, func(t1 *testing.T) {
+			if got := tt.base.Equal(tt.args.a); got != tt.want {
+				t1.Errorf("Compare() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRawDate_Before(t1 *testing.T) {
 	type args struct {
 		a rawdate.RawDate

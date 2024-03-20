@@ -124,6 +124,11 @@ func (r RawDate) Compare(a RawDate) int {
 	return Compare(r, a)
 }
 
+// Equal reports whether the RawDate a is equal RawDate b.
+func (a RawDate) Equal(b RawDate) bool {
+	return Compare(a, b) == 0
+}
+
 // After reports whether the RawDate a is after RawDate b.
 func (a RawDate) After(b RawDate) bool {
 	return Compare(a, b) > 0
